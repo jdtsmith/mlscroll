@@ -81,9 +81,9 @@ default font's character height."
 
 (defun mlscroll-fast-line-number-at-pos (pos &optional win)
   "Line number at position.
-Compute line number at position POS. Uses fast mode-line
-formatting.  If WIN is non-nil, find line number at position within
-that window."
+Compute line number at position POS. Uses mode-line formatting
+for speed.  If WIN is non-nil, find line number at position
+within that window."
   (let ((old (window-point win)))
     (set-window-point win pos)
     (prog1

@@ -163,16 +163,13 @@ which to evaluate the line positions."
   (let* ((wstart (window-start win))
 	 (start (mlscroll-fast-line-number-at-pos wstart win))
 	 (w (- mlscroll-width (* 2 mlscroll-border)))
-	 (wh (window-body-height win))
 	 last end cur left right)
     (with-current-buffer (window-buffer win)
       (setq end  (+ start (count-lines wstart (window-end win t)))
 	    last (mlscroll-fast-line-number-at-pos (point-max) win)))
     (setq cur (max mlscroll-minimum-current-width
 		   (round
-		    (* w (/ (float (if (< (- last start -1) wh)
-				       (- end start -1) ;partially filled
-				     (max wh (- end start -1))))
+		    (* w (/ (float (- end start -1))
 			    last))))
 	  left (if (and (= start 1) (= last end)) 0
 		 (max 0 (round (* (- w cur)

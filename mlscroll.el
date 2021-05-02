@@ -103,10 +103,13 @@ position within the entire scrollbar (_not_ including borders).
 If WIN is set, it is a window whose buffer to scroll.  Returns
 the absolute x position within the full bar (with border width
 removed)."
-  (pcase-let* ((`(,left ,cur ,right ,start ,end ,last ,wstart) (mlscroll-part-widths win))
+  (pcase-let* ((`(,left ,cur ,right ,start ,end ,last ,wstart)
+		(mlscroll-part-widths win))
 	       (barwidth (+ left cur right))
 	       (xpos (cond ((symbolp x) ; scroll wheel
-			    (+ left (if (eq x 'down) (- cur) (/ (* (float cur) 3) 2))))
+			    (+ left (if (eq x 'down)
+					(- (/ (float cur) 2))
+				      (/ (* (float cur) 3) 2))))
 			   ((null idx) x)
 			   ((= idx 1) (- x mlscroll-border))
 			   ((= idx 2) (+ x left))

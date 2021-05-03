@@ -16,7 +16,7 @@ I really only used scrollbars as a visual indication of position and file size. 
 
 # Info
 
-- Uses _specified space_ for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll bar.
+- Uses _specified space_ for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll.
 - Computes line numbers the same way the mode line itself does (fast and [cached](https://emacs.stackexchange.com/questions/3821/a-faster-method-to-obtain-line-number-at-pos-in-large-buffers/64656#64656)).
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
 - In graphical Emacs, you can click, click + drag, and scroll a full window height at a time on the mode line scroll bar.

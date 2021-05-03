@@ -61,13 +61,17 @@ somewhere in `mode-line-format'."
   :group 'mlscroll
   :type 'color)
 
-(defcustom mlscroll-width (* (default-font-width) 12)
-  "Width in pixels of the mode line scroll indicator.
+(defcustom mlscroll-width-chars 12
+  "Width of the mode line scroll indicator in characters.
 Default is 12 characters wide."
   :group 'mlscroll
   :type 'integer)
+(defvar mlscroll-width nil
+  "Scroll width in pixels.  
+Derived from mlscroll-width-chars.")
 
-(defcustom mlscroll-minimum-current-width 2
+(defcustom mlscroll-minimum-current-width
+  (if (> (default-font-width) 1) 2 1) ;terminal chars = 1 "pixel" wide
   "Minimum pixel width of the current window region (central) bar."
   :group 'mlscroll
   :type 'integer)
@@ -183,12 +187,6 @@ which to evaluate the line positions."
 
 (defvar mlscroll-flank-face-properties nil)
 (defvar mlscroll-cur-face-properties nil)
-(defvar mlscroll-spacer
-  (propertize " " 'display ; spacer -- align right
-	      `(space :align-to (- (+ right right-margin
-				      (,mlscroll-border))
-				   (,mlscroll-width))))
-  "A specified space which right-aligns the scroll bar")
 (defconst mlscroll-extra-properties
   `(keymap
     (keymap (mode-line keymap
@@ -212,7 +210,13 @@ by default if `mlscroll-right-align' is non-nil), in
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display `(space :width (,(+ right mlscroll-border)))))))
     (add-text-properties 0 (length bar) mlscroll-extra-properties bar)
-    (if mlscroll-right-align (concat mlscroll-spacer bar) bar)))
+    (if mlscroll-right-align
+	(concat
+	  (propertize " " 'display ; spacer -- align right
+	      `(space :align-to (- (+ right right-margin)
+				   (,(- mlscroll-width mlscroll-border)))))
+	  bar)
+      bar)))
 	      
 (defvar mlscroll-saved nil)
 (define-minor-mode mlscroll-mode 
@@ -232,6 +236,7 @@ by default if `mlscroll-right-align' is non-nil), in
 	      `(:foreground ,mlscroll-in-color
 	        :box (:line-width ,mlscroll-border)
 		:inverse-video t)
+	      mlscroll-width (* (default-font-width) mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
 	(if mlscroll-right-align
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))

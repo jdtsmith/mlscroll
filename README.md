@@ -17,6 +17,10 @@ I really only used scrollbars for a visual indication of position and file lengt
 - MLScroll puts itself in `mode-line-end-spaces`, inserting a spacer to right align.  
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, and border size.
 
+# Lines vs. Characters
+
+The MLScroll bar widths are based on the number of _lines_ shown in the window (and before and after it). The normal scroll bar is based on _characters_.  Both tend to change as very long/wrapped lines come into view, but in the opposite sense: MLScroll sees fewer lines shown and shrinks the current thumb; the normal scrollbar sees many characters in view, and increases it.  I find lines to be more sensible, and it has the advantage that with `truncate-lines` on it doesn't change as you scroll.  If you'd like to see the difference, evaluate `(insert (make-string 5000 ?a) "\n")` in the `*scratch*` buffer amidst other normal text, and scroll through before and after `toggle-truncate-lines`.
+
 # Installing
 
 Get it wherever you get your favorite packages, and arrange to have 

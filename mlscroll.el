@@ -220,8 +220,6 @@ by default if `mlscroll-right-align' is non-nil), in
   :global t
   (if mlscroll-mode
       (progn
-	(if mlscroll-right-align
-	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(setq mlscroll-saved mode-line-end-spaces
 	      ;; For box to enclose all 3 segments (no internal
 	      ;; borders) , they must have the same :foreground (after
@@ -235,6 +233,8 @@ by default if `mlscroll-right-align' is non-nil), in
 	        :box (:line-width ,mlscroll-border)
 		:inverse-video t)
 	      line-number-display-limit-width 2000000)
+	(if mlscroll-right-align
+	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(when (and mlscroll-disable-percent-position
 		   (eq (cadar mode-line-position) 'mode-line-percent-position))
 	  (setq mlscroll-saved (cons mlscroll-saved (car mode-line-position))

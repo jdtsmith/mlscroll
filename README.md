@@ -5,7 +5,7 @@ Lightweight scrollbar for the Emacs mode line
 
 # Why
 
-I really only used scrollbars to give a visual indication of position and file length.  Recently I added `(scroll-bar-mode -1)` to my init, but missed having that information.  A percentage in the mode line (like `25%`) is not very glaceable, and gives no information about the total line length.  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).  
+I really only used scrollbars for a visual indication of position and file length.  Recently, to save space, I added `(scroll-bar-mode -1)` to my init, but missed having that information.  A percentage in the mode line (like `25%`) is not very glaceable, and gives no information about the total line length.  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).  
 
 # Info
 

@@ -1,6 +1,5 @@
 # MLScroll
-Lightweight scrollbar for the Emacs mode line
-
+A lightweight scrollbar for the Emacs mode line. 
 ![mlscroll](https://user-images.githubusercontent.com/93749/116825204-38031880-ab5c-11eb-8252-5f60a61f45dd.gif)
 
 # Why

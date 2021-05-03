@@ -37,4 +37,4 @@ Get it wherever you get your favorite packages, and arrange to have
 (mlscroll-mode 1)
 ```
 
-called at init time (or whenver you are feeling scrolly). Toggle on or off anytime.
+called at init time (or whenever you are feeling scrolly). Toggle on or off anytime.

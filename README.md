@@ -17,12 +17,12 @@ I really only used scrollbars as a visual indication of position and file size. 
 # Info
 
 - Uses [_specified space_](https://www.gnu.org/software/emacs/manual/html_node/elisp/Specified-Space.html) for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll.
-- Computes line numbers the same way the mode line itself does (fast and [cached](https://emacs.stackexchange.com/questions/3821/a-faster-method-to-obtain-line-number-at-pos-in-large-buffers/64656#64656)).
+- Computes line number updates with caching for fast performance. 
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
-- In graphical Emacs, you can click, click + drag, and scroll a full window height at a time on the mode line scroll bar.
+- In graphical Emacs, you can click, click + drag, and wheel-scroll a full window height at a time on the mode line scroll bar.
 - Clicking on an inactive window's mode line scroll bar does not activate it. 
 - By default, mlscroll disables the XX% position mode line indication.
-- MLScroll puts itself in `mode-line-end-spaces`, inserting a spacer to right align.  
+- MLScroll puts itself in `mode-line-end-spaces`, prepending a spacer to right align.
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, border size, and other settings.
 
 # Lines vs. Characters

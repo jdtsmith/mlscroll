@@ -218,9 +218,12 @@ which to evaluate the line positions."
   `(keymap
     (keymap (mode-line keymap
 		       (down-mouse-1 . mlscroll-mouse)
+		       (wheel-left . ignore)
+		       (wheel-right . ignore)
 		       (,mouse-wheel-up-event . mlscroll-wheel)
 		       (,mouse-wheel-down-event . mlscroll-wheel)))
     help-echo "mouse-1: scroll buffer"))
+
 
 (defun mlscroll-mode-line ()        
   "Generate text for mode line scrollbar.

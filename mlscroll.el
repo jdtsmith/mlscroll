@@ -234,17 +234,16 @@ by default if `mlscroll-right-align' is non-nil), in
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display `(space :width (,(+ left mlscroll-border))))
-		     (if (> cur 0)
-			 (propertize " " 'face mlscroll-cur-face-properties
-				     'display `(space :width (,cur))))
+		     (propertize " " 'face mlscroll-cur-face-properties
+				 'display `(space :width (,cur)))
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display `(space :width (,(+ right mlscroll-border)))))))
     (add-text-properties 0 (length bar) mlscroll-extra-properties bar)
     (if mlscroll-right-align
 	(concat
-	  (propertize " " 'display ; spacer -- align right
-	      `(space :align-to (- (+ right right-margin)
-				   (,(- mlscroll-width mlscroll-border)))))
+	 (propertize " " 'display ; spacer -- align right
+		     `(space :align-to (- (+ right right-margin)
+					  (,(- mlscroll-width mlscroll-border)))))
 	  bar)
       bar)))
 	      

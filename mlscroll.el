@@ -83,16 +83,44 @@ default font's character height."
   :group 'mlscroll
   :type 'integer)
 
-(defun mlscroll-fast-line-number-at-pos (pos &optional win)
-  "Line number at position.
-Compute line number at position POS. Uses mode-line formatting
-for speed.  If WIN is non-nil, find line number at position
-within that window."
-  (let ((old (window-point win)))
-    (set-window-point win pos)
-    (prog1
-	(string-to-number (format-mode-line "%l" 0 win))
-      (set-window-point win old))))
+;(defvar-local mlscroll-cache-stats [0 0 0])
+(defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
+  "A per-buffer cache for line number lookup.
+Format: ( (buf-tick point-min point-max) last-start-pos line-start line-max)")
+(defun mlscroll-line-numbers (&optional win)
+  "Calculate and return line numbers.
+Returns a list of 3 line numbers at: window start, window end,
+and point-max.  Uses caching for speed. If WIN is passed, use the
+window limits and point-max of the buffer in that window."
+  (with-current-buffer (window-buffer win)
+    ;(cl-incf (aref mlscroll-cache-stats 0))
+    (let* ((mod (car mlscroll-linenum-cache))
+	   (last-bt (car mod)) (last-pmn (nth 1 mod)) (last-pmx (nth 2 mod))
+	   (cache (cdr mlscroll-linenum-cache))
+	   (old-start (car cache))
+	   (old-line-start (nth 1 cache))
+	   (old-line-max (nth 2 cache))
+	   (wstart (window-start win)) (wend (window-end win t))
+	   (pmn (point-min)) (pmx (point-max))
+	   (buf-tick (buffer-modified-tick))
+	   lstart lend lmax) ;;; test cache hits/misses incl. l-n-a-p calls.
+      (if (and (= buf-tick last-bt) (= pmn last-pmn) (= pmx last-pmx))
+	  (setq lstart (if (= wstart old-start) old-line-start
+			 (if (< (abs (- wstart old-start)) (- wstart pmn))
+			     (funcall (if (> wstart old-start) #'+ #'-)
+				      old-line-start
+				      (count-lines wstart old-start))
+			   ;(cl-incf (aref mlscroll-cache-stats 1))
+			   (line-number-at-pos wstart)))
+		lend (+ lstart (count-lines wstart wend))
+		lmax old-line-max)
+	;(cl-incf (aref mlscroll-cache-stats 2))
+	(setq mod (list buf-tick pmn pmx))
+	(setq lstart (line-number-at-pos wstart)
+	      lend   (+ lstart (count-lines wstart wend))
+	      lmax   (+ lend   (count-lines wend pmx))))
+      (setq mlscroll-linenum-cache (list mod wstart lstart lmax))
+      (list lstart lend lmax))))
 
 (defun mlscroll-scroll-to (x &optional idx win)
   "Scroll to the position identified by position X and component IDX.
@@ -107,8 +135,8 @@ position within the entire scrollbar (_not_ including borders).
 If WIN is set, it is a window whose buffer to scroll.  Returns
 the absolute x position within the full bar (with border width
 removed)."
-  (pcase-let* ((`(,left ,cur ,right ,start ,end ,last ,wstart)
-		(mlscroll-part-widths win))
+  (pcase-let* ((`(,left ,cur ,right ,start ,end ,last)
+		(mlscroll--part-widths win))
 	       (barwidth (+ left cur right))
 	       (xpos (cond ((symbolp x) ; scroll wheel
 			    (+ left (if (eq x 'down)
@@ -127,7 +155,7 @@ removed)."
        win
        (with-current-buffer (window-buffer win)
 	 (save-excursion
-	   (goto-char wstart)
+	   (goto-char (cadr mlscroll-linenum-cache))
 	   (forward-line (- targ start))
 	   (point)))))
     xpos))
@@ -163,27 +191,26 @@ removed)."
 	       (<= xnew (- mlscroll-width mlscroll-border)))
 	  (mlscroll-scroll-to xnew nil start-win))))))
 
-(defun mlscroll-part-widths (&optional win)
+(defun mlscroll--part-widths (&optional win)
   "Pixel widths of the bars (not including border).
+Also returns line numbers at window start & end and (point-max).
 If optional argument WIN is passed, it should be a window in
 which to evaluate the line positions."
-  (let* ((wstart (window-start win))
-	 (start (mlscroll-fast-line-number-at-pos wstart win))
+  (let* ((lines (mlscroll-line-numbers win))
+	 (start (car lines))
+	 (end (nth 1 lines))
+	 (last (nth 2 lines))
 	 (w (- mlscroll-width (* 2 mlscroll-border)))
-	 last end cur left right)
-    (with-current-buffer (window-buffer win)
-      (setq end  (+ start (count-lines wstart (window-end win t)))
-	    last (mlscroll-fast-line-number-at-pos (point-max) win)))
-    (setq cur (max mlscroll-minimum-current-width
+	 (cur (max mlscroll-minimum-current-width
 		   (round
 		    (* w (/ (float (- end start -1))
-			    last))))
-	  left (if (and (= start 1) (= last end)) 0
+			    last)))))
+	 (left (if (and (= start 1) (= last end)) 0
 		 (max 0 (round (* (- w cur)
 				  (/ (- start 1.0)
-				     (+ (- start 1) (- last end)))))))
-	  right (max 0 (- w cur left)))
-    (list left cur right start end last wstart)))
+				     (+ (- start 1) (- last end))))))))
+	 (right (max 0 (- w cur left))))
+    (list left cur right start end last)))
 
 (defvar mlscroll-flank-face-properties nil)
 (defvar mlscroll-cur-face-properties nil)
@@ -200,7 +227,7 @@ which to evaluate the line positions."
 Intended to be set in an :eval in the mode line, e.g. (as is done
 by default if `mlscroll-right-align' is non-nil), in
 `mode-line-end-spaces'."
-  (pcase-let* ((`(,left ,cur ,right) (mlscroll-part-widths))
+  (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths))
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display `(space :width (,(+ left mlscroll-border))))

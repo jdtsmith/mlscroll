@@ -5,8 +5,10 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Package-Version: 0.0.1
-;; Keywords: mode line scrolling
+;; Package-Version: 0.0.2
+;; Keywords: convenience
+;; Prefix: mlscroll
+;; Separator: -
 
 ;;; Commentary:
 
@@ -67,8 +69,8 @@ Default is 12 characters wide."
   :group 'mlscroll
   :type 'integer)
 (defvar mlscroll-width nil
-  "Scroll width in pixels.  
-Derived from mlscroll-width-chars.")
+  "Scroll width in pixels.
+Derived from `mlscroll-width-chars'.")
 
 (defcustom mlscroll-minimum-current-width
   (if (> (default-font-width) 1) 2 1) ;terminal chars = 1 "pixel" wide
@@ -78,7 +80,7 @@ Derived from mlscroll-width-chars.")
 
 (defcustom mlscroll-border (floor (/ (float (default-font-height)) 4))
   "Border in pixels around the scrollbar.
-Drawn in the mode line's background color. Defaults to 1/4 of the
+Drawn in the mode line's background color.  Defaults to 1/4 of the
 default font's character height."
   :group 'mlscroll
   :type 'integer)
@@ -90,8 +92,8 @@ Format: ( (buf-tick point-min point-max) last-start-pos line-start line-max)")
 (defun mlscroll-line-numbers (&optional win)
   "Calculate and return line numbers.
 Returns a list of 3 line numbers at: window start, window end,
-and point-max.  Uses caching for speed. If WIN is passed, use the
-window limits and point-max of the buffer in that window."
+and `point-max'.  Uses caching for speed.  If WIN is passed, use the
+window limits and `point-max' of the buffer in that window."
   (with-current-buffer (window-buffer win)
     ;(cl-incf (aref mlscroll-cache-stats 0))
     (let* ((mod (car mlscroll-linenum-cache))
@@ -161,6 +163,8 @@ removed)."
     xpos))
 
 (defun mlscroll-wheel (event)
+  "Handle mouse scroll events on the scroll bar.
+EVENT is the mouse scroll event."
   (interactive "e")
   (let ((type (event-basic-type event))
 	(win (posn-window (event-start event))))
@@ -169,7 +173,8 @@ removed)."
      nil win)))
 
 (defun mlscroll-mouse (start-event)
-  "Handle click and drag mouse events on the mode line scroll bar."
+  "Handle click and drag mouse events on the mode line scroll bar.
+START-EVENT is the automatically passed mouse event."
   (interactive "e")
   (let* ((start-posn (event-start start-event))
 	 (start-win (posn-window start-posn))
@@ -225,7 +230,7 @@ which to evaluate the line positions."
     help-echo "mouse-1: scroll buffer"))
 
 
-(defun mlscroll-mode-line ()        
+(defun mlscroll-mode-line ()
   "Generate text for mode line scrollbar.
 Intended to be set in an :eval in the mode line, e.g. (as is done
 by default if `mlscroll-right-align' is non-nil), in
@@ -248,7 +253,8 @@ by default if `mlscroll-right-align' is non-nil), in
       bar)))
 	      
 (defvar mlscroll-saved nil)
-(define-minor-mode mlscroll-mode 
+;;;###autoload
+(define-minor-mode mlscroll-mode
   "Minor mode for displaying scroll indicator in mode line."
   :global t
   (if mlscroll-mode
@@ -279,4 +285,5 @@ by default if `mlscroll-right-align' is non-nil), in
 	(setq mode-line-position (cons (cdr mlscroll-saved)
 				       mode-line-position)))))
 
-(provide 'mlscroll-mode)
+(provide 'mlscroll)
+;;; mlscroll.el ends here

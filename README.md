@@ -17,7 +17,7 @@ Emacs has so many great ways to navigate, I really only ever used scrollbars as 
 # Info
 
 - Uses [_specified space_](https://www.gnu.org/software/emacs/manual/html_node/elisp/Specified-Space.html) for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll.
-- Computes line number updates with caching for very fast performance.
+- Computes line numbers with caching for performance.
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
 - In graphical Emacs, you can click, click + drag, and wheel-scroll a full window height at a time on the mode line scroll bar.
 - Clicking on an inactive window's mode line scroll bar does not activate it. 

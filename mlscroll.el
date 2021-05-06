@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Package-Version: 0.0.2
+;; Package-Version: 0.1.0
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -86,6 +86,16 @@ Drawn in the mode line's background color.  Defaults to 1/4 of the
 default font's character height."
   :group 'mlscroll
   :type 'integer)
+
+(defcustom mlscroll-shortfun-min-width nil
+  "If non-nil, the truncate which-function to a min of this width.
+If which-function-mode is enabled, setting this option enables
+truncating the current function name from the right, down to the
+specified width.  This allows the scroll bar to appear fully on
+the mode line in more situations."
+  :group 'mlscroll
+  :type '(choice (const :tag "Off" nil)
+		 (integer :tag "Minimum Width")))
 
 ;(defvar-local mlscroll-cache-stats [0 0 0])
 (defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
@@ -256,7 +266,44 @@ by default if `mlscroll-right-align' is non-nil), in
 					  (,(- mlscroll-width mlscroll-border)))))
 	  bar)
       bar)))
-	      
+
+(defvar mlscroll-shortfun-mlparts nil
+  "Separate parts of the mode line for use when function shortening is enabled.")
+(defvar mlscroll-shortfun-remain nil)
+(defun mlscroll-shortfun-modeline ()
+  (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
+	 (cur-length (length first))
+	 (mlscroll-shortfun-remain
+	  (max mlscroll-shortfun-min-width
+	       (- (/ (window-width nil t)
+		     mlscroll-mode-line-font-width)
+		  cur-length
+		  mlscroll-width-chars 3))))
+    (format-mode-line `(,first ,@(cadr mlscroll-shortfun-mlparts)))))
+
+(defvar mlscroll-shortfun-saved nil)
+(defun mlscroll-shortfun-unsetup ()
+  (when mlscroll-shortfun-saved
+    (setq mode-line-format (car mlscroll-shortfun-saved))
+    (setcdr which-func-current (cdr mlscroll-shortfun-saved))))
+
+(defun mlscroll-shortfun-setup ()
+  (if mlscroll-shortfun-min-width
+      (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
+	(if (not mlmi-pos)
+	    (error "mode-line-misc-info not found in the mode-line-format.")
+	  (setq mlscroll-shortfun-saved (cons mode-line-format
+					      (cdr which-func-current))
+		mlscroll-shortfun-mlparts (seq-partition mode-line-format
+							 mlmi-pos)
+		mode-line-format '(:eval (mlscroll-shortfun-modeline)))
+	  (setcdr which-func-current 
+		  `((let ((wfc ,(cadr which-func-current)))
+		      (if (and wfc (> (length wfc) mlscroll-shortfun-remain))
+			  (concat "…" (substring wfc
+						 (- 1 mlscroll-shortfun-remain)))
+			wfc))))))))
+
 (defvar mlscroll-saved nil)
 ;;;###autoload
 (define-minor-mode mlscroll-mode
@@ -288,7 +335,9 @@ by default if `mlscroll-right-align' is non-nil), in
 	(when (and mlscroll-disable-percent-position
 		   (eq (cadar mode-line-position) 'mode-line-percent-position))
 	  (setq mlscroll-saved (cons mlscroll-saved (car mode-line-position))
-		mode-line-position (cdr mode-line-position))))
+		mode-line-position (cdr mode-line-position)))
+	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
+    (mlscroll-shortfun-unsetup)
     (if mlscroll-right-align
 	(setq mode-line-end-spaces (car mlscroll-saved)))
     (if (cdr mlscroll-saved)

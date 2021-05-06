@@ -24,6 +24,7 @@ Emacs has so many great ways to navigate, I really only ever used scrollbars as 
 - By default, MLScroll disables the `XX%` position mode line indication.
 - MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, border size, and other settings.
+- `which-function-mode` by default puts `[full-function-name]` on the right of the mode line.  With long names this can push the scroll bar off the right side of the mode line.  Set `mlscroll-shortfun-min-width` to a minimum width, and MLScroll will truncate the function name to at least that many trailing characters (`[…function-name]` or similar). 
 
 # Lines vs. Characters
 

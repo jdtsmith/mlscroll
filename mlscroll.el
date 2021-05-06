@@ -25,12 +25,14 @@
 
 ;;; Commentary:
 
-;; MLScroll provides a small and lean graphical (text based) scrollbar for the
-;; mode line.  To use, simply load the package and add:
+;; MLScroll provides a small and lean graphical text based scrollbar
+;; for the mode line.  To use, simply load the package and add:
 ;;
-;;   (mlscroll-mode 1)
+;;    (mlscroll-mode 1)
 ;;
-;; to your configuration
+;; to your configuration.  To toggle at any time:
+;;
+;;    M-x mlscroll-mode.
 
 ;;; Code:
 (defgroup mlscroll nil
@@ -68,6 +70,7 @@ If set to nil, you must arrange to include
 Default is 12 characters wide."
   :group 'mlscroll
   :type 'integer)
+
 (defvar mlscroll-width nil
   "Scroll width in pixels.
 Derived from `mlscroll-width-chars'.")
@@ -101,6 +104,7 @@ the mode line in more situations."
 (defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
   "A per-buffer cache for line number lookup.
 Format: ( (buf-tick point-min point-max) last-start-pos line-start line-max)")
+
 (defun mlscroll-line-numbers (&optional win)
   "Calculate and return line numbers.
 Returns a list of 3 line numbers at: window start, window end,
@@ -117,7 +121,7 @@ window limits and `point-max' of the buffer in that window."
 	   (wstart (window-start win)) (wend (window-end win t))
 	   (pmn (point-min)) (pmx (point-max))
 	   (buf-tick (buffer-modified-tick))
-	   lstart lend lmax) ;;; test cache hits/misses incl. l-n-a-p calls.
+	   lstart lend lmax)
       (if (and (= buf-tick last-bt) (= pmn last-pmn) (= pmx last-pmx))
 	  (setq lstart (if (= wstart old-start) old-line-start
 			 (if (< (abs (- wstart old-start)) (- wstart pmn))

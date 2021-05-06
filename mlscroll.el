@@ -71,6 +71,8 @@ Default is 12 characters wide."
 (defvar mlscroll-width nil
   "Scroll width in pixels.
 Derived from `mlscroll-width-chars'.")
+(defvar mlscroll-mode-line-font-width nil
+  "Character width in mode line.")
 
 (defcustom mlscroll-minimum-current-width
   (if (> (default-font-width) 1) 2 1) ;terminal chars = 1 "pixel" wide
@@ -271,7 +273,12 @@ by default if `mlscroll-right-align' is non-nil), in
 	      `(:foreground ,mlscroll-in-color
 	        :box (:line-width ,mlscroll-border)
 		:inverse-video t)
-	      mlscroll-width (* (default-font-width) mlscroll-width-chars)
+	      mlscroll-mode-line-font-width
+	      (if (display-multi-font-p)
+		  (aref (font-info (face-font 'mode-line)) 11)
+		(default-font-width))
+	      mlscroll-width
+	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
 	(if mlscroll-right-align
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))

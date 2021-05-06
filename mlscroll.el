@@ -48,8 +48,8 @@ Only works if `mode-line-percent-position' is at the beginning of
 
 (defcustom mlscroll-right-align t
   "Whether to right-align the scrollbar within the mode line.
-If nil, you must arrange to include '(eval: (mlscroll-mode-line))
-somewhere in `mode-line-format'."
+If set to nil, you must arrange to include
+'(eval: (mlscroll-mode-line)) somewhere in `mode-line-format'."
   :group 'mlscroll
   :type 'boolean)
 
@@ -240,11 +240,14 @@ by default if `mlscroll-right-align' is non-nil), in
   (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths))
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties
-				 'display `(space :width (,(+ left mlscroll-border))))
+				 'display
+				 `(space :width (,(+ left mlscroll-border))))
 		     (propertize " " 'face mlscroll-cur-face-properties
-				 'display `(space :width (,cur)))
+				 'display
+				 `(space :width (,cur)))
 		     (propertize " " 'face mlscroll-flank-face-properties
-				 'display `(space :width (,(+ right mlscroll-border)))))))
+				 'display
+				 `(space :width (,(+ right mlscroll-border)))))))
     (add-text-properties 0 (length bar) mlscroll-extra-properties bar)
     (if mlscroll-right-align
 	(concat

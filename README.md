@@ -28,11 +28,11 @@ Emacs has so many great ways to navigate, I really only ever used scrollbars as 
 
 # Lines vs. Characters
 
-The MLScroll bar widths are based on the number of _lines_ visible in the window (+ lines before and after it). The normal scroll bar is based on _characters_ shown. Both tend to change as very long/wrapped lines come into view, but in the opposite sense: MLScroll sees fewer lines shown and shrinks the current thumb; the default scrollbar sees many characters come in view, and increases it.  I find lines to be more sensible, and it has the advantage that with `truncate-lines` on, it doesn't change as you scroll.  If you'd like to see the difference, evaluate `(insert (make-string 5000 ?a) "\n")` in the `*scratch*` buffer amidst other normal text, and scroll through before and after `toggle-truncate-lines`.
+The MLScroll bar widths are based on the number of _lines_ visible in the window (+ lines before and after it). The normal scroll bar is based on _characters_ shown. Both tend to change as very long/wrapped lines come into view, but in the opposite sense: MLScroll sees fewer lines shown and shrinks the current thumb; the default scrollbar sees many characters come in view, and grows it.  I find the lines approach to be more sensible, and it has the advantage that with `truncate-lines` on, the thumb doesn't change size as you scroll.  If you'd like to see the difference, evaluate `(insert (make-string 5000 ?a) "\n")` in the `*scratch*` buffer amidst other normal text, and scroll through before and after `toggle-truncate-lines`.
 
 # Installing
 
-Get it wherever you get your favorite packages, and arrange to have 
+Get it from MELPA, and arrange to have
 
 ```elisp
 (mlscroll-mode 1)

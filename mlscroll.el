@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Package-Version: 0.1.0
+;; Package-Version: 0.1.1
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -103,7 +103,9 @@ the mode line in more situations."
 ;(defvar-local mlscroll-cache-stats [0 0 0])
 (defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
   "A per-buffer cache for line number lookup.
-Format: ( (buf-tick point-min point-max) last-start-pos line-start line-max)")
+Format: 
+ ( (buf-tick point-min point-max) 
+   last-start-pos line-start line-max )")
 
 (defun mlscroll-line-numbers (&optional win)
   "Calculate and return line numbers.

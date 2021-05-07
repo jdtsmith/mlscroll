@@ -245,6 +245,48 @@ which to evaluate the line positions."
 		       (,mouse-wheel-down-event . mlscroll-wheel)))
     help-echo "mouse-1: scroll buffer"))
 
+(defvar mlscroll-shortfun-mlparts nil
+  "Separate parts of the mode line for use when function shortening is enabled.")
+(defvar mlscroll-shortfun-remain nil)
+(defun mlscroll-shortfun-modeline ()
+  (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
+	 (cur-length (length first))
+	 (ww (window-width nil t))
+	 (remain
+	  (max mlscroll-shortfun-min-width
+	       (- (/ ww mlscroll-mode-line-font-width)
+		  cur-length
+		  mlscroll-width-chars 3))))
+    `(,first
+      (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with the
+	       (format-mode-line mode-line-misc-info))); symbols doesn't work
+      ,@(cdadr mlscroll-shortfun-mlparts)))) ; all the rest
+
+(defvar mlscroll-shortfun-saved nil)
+(defun mlscroll-shortfun-unsetup ()
+  (when mlscroll-shortfun-saved
+    (setq mode-line-format (car mlscroll-shortfun-saved)
+	  which-func-format (cdr mlscroll-shortfun-saved))))
+
+(defun mlscroll-shortfun-setup ()
+  (if mlscroll-shortfun-min-width
+      (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
+	(if (not mlmi-pos)
+	    (error "mode-line-misc-info not found in the mode-line-format.")
+	  (setq mlscroll-shortfun-saved (cons mode-line-format
+					      which-func-format)
+		mlscroll-shortfun-mlparts (seq-partition mode-line-format
+							 mlmi-pos)
+		mode-line-format '(:eval (mlscroll-shortfun-modeline)))
+
+	  (cl-nsubst `(:eval
+		       (let ((wfc ,(cadr which-func-current))) ; sans :eval
+			 (if (and wfc ;mlscroll-shortfun-remain
+				  (> (length wfc) mlscroll-shortfun-remain))
+			     (concat "…" (substring wfc
+						    (- 1 mlscroll-shortfun-remain)))
+			   wfc)))
+		     'which-func-current which-func-format)))))
 
 (defun mlscroll-mode-line ()
   "Generate text for mode line scrollbar.
@@ -270,43 +312,6 @@ by default if `mlscroll-right-align' is non-nil), in
 					  (,(- mlscroll-width mlscroll-border)))))
 	  bar)
       bar)))
-
-(defvar mlscroll-shortfun-mlparts nil
-  "Separate parts of the mode line for use when function shortening is enabled.")
-(defvar mlscroll-shortfun-remain nil)
-(defun mlscroll-shortfun-modeline ()
-  (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
-	 (cur-length (length first))
-	 (mlscroll-shortfun-remain
-	  (max mlscroll-shortfun-min-width
-	       (- (/ (window-width nil t)
-		     mlscroll-mode-line-font-width)
-		  cur-length
-		  mlscroll-width-chars 3))))
-    (format-mode-line `(,first ,@(cadr mlscroll-shortfun-mlparts)))))
-
-(defvar mlscroll-shortfun-saved nil)
-(defun mlscroll-shortfun-unsetup ()
-  (when mlscroll-shortfun-saved
-    (setq mode-line-format (car mlscroll-shortfun-saved))
-    (setcdr which-func-current (cdr mlscroll-shortfun-saved))))
-
-(defun mlscroll-shortfun-setup ()
-  (if mlscroll-shortfun-min-width
-      (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
-	(if (not mlmi-pos)
-	    (error "mode-line-misc-info not found in the mode-line-format.")
-	  (setq mlscroll-shortfun-saved (cons mode-line-format
-					      (cdr which-func-current))
-		mlscroll-shortfun-mlparts (seq-partition mode-line-format
-							 mlmi-pos)
-		mode-line-format '(:eval (mlscroll-shortfun-modeline)))
-	  (setcdr which-func-current 
-		  `((let ((wfc ,(cadr which-func-current)))
-		      (if (and wfc (> (length wfc) mlscroll-shortfun-remain))
-			  (concat "…" (substring wfc
-						 (- 1 mlscroll-shortfun-remain)))
-			wfc))))))))
 
 (defvar mlscroll-saved nil)
 ;;;###autoload

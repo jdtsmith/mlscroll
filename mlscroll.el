@@ -282,7 +282,8 @@ which to evaluate the line positions."
 		mode-line-format '(:eval (mlscroll-shortfun-modeline)))
 	  (cl-nsubst `(:eval
 		       (let ((wfc ,(cadr which-func-current))) ; sans :eval
-			 (if (and wfc (> (length wfc) mlscroll-shortfun-remain))
+			 (if (and wfc mlscroll-shortfun-remain
+				  (> (length wfc) mlscroll-shortfun-remain))
 			     (concat "…"
 				     (substring wfc (- 1 mlscroll-shortfun-remain)))
 			   wfc)))

@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Package-Version: 0.1.1
+;; Version: 0.1.1
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -33,6 +33,9 @@
 ;; to your configuration.  To toggle at any time:
 ;;
 ;;    M-x mlscroll-mode.
+
+(require 'seq)
+(require 'cl-seq)
 
 ;;; Code:
 (defgroup mlscroll nil
@@ -91,9 +94,9 @@ default font's character height."
   :type 'integer)
 
 (defcustom mlscroll-shortfun-min-width nil
-  "If non-nil, the truncate which-function to a min of this width.
-If which-function-mode is enabled, setting this option enables
-truncating the current function name from the right, down to the
+  "If non-nil, truncate which-function to a minimum of this width.
+If Which-Function mode is enabled, setting this option will
+truncate the current function name from the right, down to the
 specified width.  This allows the scroll bar to appear fully on
 the mode line in more situations."
   :group 'mlscroll
@@ -103,8 +106,8 @@ the mode line in more situations."
 ;(defvar-local mlscroll-cache-stats [0 0 0])
 (defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
   "A per-buffer cache for line number lookup.
-Format: 
- ( (buf-tick point-min point-max) 
+Format:
+ ( (buf-tick point-min point-max)
    last-start-pos line-start line-max )")
 
 (defun mlscroll-line-numbers (&optional win)
@@ -251,6 +254,7 @@ which to evaluate the line positions."
   "Separate parts of the mode line for use when function shortening is enabled.")
 (defvar mlscroll-shortfun-remain nil)
 (defun mlscroll-shortfun-modeline ()
+  "Mode line replacement for shortening which-func."
   (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
 	 (cur-length (length first))
 	 (ww (window-width nil t))
@@ -258,23 +262,27 @@ which to evaluate the line positions."
 	  (max mlscroll-shortfun-min-width
 	       (- (/ ww mlscroll-mode-line-font-width)
 		  cur-length
-		  mlscroll-width-chars 3)))) ; 3 = [, ], and SPC
+		  mlscroll-width-chars 3)))) ; 3 = [, ], and SPC; format to see?
     `(,first
       (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with only the
 	       (format-mode-line mode-line-misc-info))); symbol doesn't work
       ,@(cdadr mlscroll-shortfun-mlparts)))) ; all the rest
 
 (defvar mlscroll-shortfun-saved nil)
+(defvar which-func-current)
+(defvar which-func-format)
 (defun mlscroll-shortfun-unsetup ()
+  "Reverse the setup."
   (when mlscroll-shortfun-saved
     (setq mode-line-format (car mlscroll-shortfun-saved)
 	  which-func-format (cdr mlscroll-shortfun-saved))))
 
 (defun mlscroll-shortfun-setup ()
+  "Setup MLScroll."
   (if mlscroll-shortfun-min-width
       (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
 	(if (not mlmi-pos)
-	    (error "mode-line-misc-info not found in the mode-line-format.")
+	    (error "The symbol mode-line-misc-info not found in the mode-line-format")
 	  (setq mlscroll-shortfun-saved (cons mode-line-format
 					      which-func-format)
 		mlscroll-shortfun-mlparts (seq-partition mode-line-format

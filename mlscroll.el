@@ -274,8 +274,8 @@ which to evaluate the line positions."
 (defun mlscroll-shortfun-unsetup ()
   "Reverse the setup."
   (when mlscroll-shortfun-saved
-    (setq mode-line-format (car mlscroll-shortfun-saved)
-	  which-func-format (cdr mlscroll-shortfun-saved))))
+    (setq-default mode-line-format (car mlscroll-shortfun-saved))
+    (setq which-func-format (cdr mlscroll-shortfun-saved))))
 
 (defun mlscroll-shortfun-setup ()
   "Setup MLScroll."
@@ -286,8 +286,8 @@ which to evaluate the line positions."
 	  (setq mlscroll-shortfun-saved (cons mode-line-format
 					      which-func-format)
 		mlscroll-shortfun-mlparts (seq-partition mode-line-format
-							 mlmi-pos)
-		mode-line-format '(:eval (mlscroll-shortfun-modeline)))
+							 mlmi-pos))
+	  (setq-default mode-line-format '(:eval (mlscroll-shortfun-modeline)))
 	  (cl-nsubst `(:eval
 		       (let ((wfc ,(cadr which-func-current))) ; sans :eval
 			 (if (and wfc mlscroll-shortfun-remain

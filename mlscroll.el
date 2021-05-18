@@ -262,7 +262,7 @@ which to evaluate the line positions."
 	  (max mlscroll-shortfun-min-width
 	       (- (/ ww mlscroll-mode-line-font-width)
 		  cur-length
-		  mlscroll-width-chars 3)))) ; 3 = [, ], and SPC; format to see?
+		  mlscroll-width-chars 2)))) ; 2 = [, ]
     `(,first
       (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with only the
 	       (format-mode-line mode-line-misc-info))); symbol doesn't work
@@ -288,6 +288,7 @@ which to evaluate the line positions."
 		mlscroll-shortfun-mlparts (seq-partition mode-line-format
 							 mlmi-pos))
 	  (setq-default mode-line-format '(:eval (mlscroll-shortfun-modeline)))
+	  (cl-nsubst "" " " mode-line-misc-info :test #'equal)
 	  (cl-nsubst `(:eval
 		       (let ((wfc ,(cadr which-func-current))) ; sans :eval
 			 (if (and wfc mlscroll-shortfun-remain

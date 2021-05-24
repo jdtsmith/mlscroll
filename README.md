@@ -39,3 +39,18 @@ Get it from MELPA, and arrange to have
 ```
 
 called at init time (or whenever you are feeling scrolly). Toggle on or off anytime.
+
+# Other tips
+
+MLScroll takes up a decent (configurable) chunk of your mode line.  To save space for it even when the window is somewhat narrow, I use:
+
+- [minions](https://github.com/tarsius/minions) to hide all minor-modes under a nice menu. 
+- [cyphejor](https://github.com/mrkkrp/cyphejor) to shorten the names of major mode using emoji and greek characters. 
+- `(setq mlscroll-shortfun-min-width 11)` to trim down the which-function name as needed. 
+- a trim of all double-spaces anywhere in the mode line format to a single space:
+```elisp
+  (setq-default
+   mode-line-format ;less space, no MULE
+   (cl-nsubst-if " " (lambda (x) (and (stringp x) (string-blank-p x) (> (length x) 1)))
+		 (remove 'mode-line-mule-info mode-line-format))))
+```

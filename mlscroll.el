@@ -35,7 +35,7 @@
 ;;    M-x mlscroll-mode.
 
 (require 'seq)
-(require 'cl-seq)
+(require 'cl-lib)
 
 ;;; Code:
 (defgroup mlscroll nil

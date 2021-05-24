@@ -38,7 +38,15 @@ Get it from MELPA, and arrange to have
 (mlscroll-mode 1)
 ```
 
-called at init time (or whenever you are feeling scrolly). Toggle on or off anytime.
+called at init time (or whenever you are feeling scrolly). Toggle on or off anytime. Example for `use-package`:
+
+```elisp
+(use-package mlscroll
+  :ensure t
+  :config
+  (setq mlscroll-shortfun-min-width 11) ;truncate which-func
+  (mlscroll-mode 1))
+```
 
 # Other tips
 
@@ -47,7 +55,7 @@ MLScroll takes up a decent (configurable) chunk of your mode line.  To save spac
 - [minions](https://github.com/tarsius/minions) to hide all minor-modes under a nice menu. 
 - [cyphejor](https://github.com/mrkkrp/cyphejor) to shorten the names of major mode using emoji and greek characters. 
 - `(setq mlscroll-shortfun-min-width 11)` to trim down the which-function name as needed. 
-- a trim of all double-spaces anywhere in the mode line format to a single space:
+- removal of mule-info, and a trim of all double-spaces anywhere in the mode line format to a single space:
 ```elisp
   (setq-default
    mode-line-format ;less space, no MULE

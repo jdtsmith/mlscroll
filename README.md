@@ -44,7 +44,7 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
 (use-package mlscroll
   :ensure t
   :config
-  (setq mlscroll-shortfun-min-width 11) ;truncate which-func
+  (setq mlscroll-shortfun-min-width 11) ;truncate which-func, for default mode-line-format's
   (mlscroll-mode 1))
 ```
 

@@ -282,7 +282,7 @@ which to evaluate the line positions."
   (if mlscroll-shortfun-min-width
       (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
 	(if (not mlmi-pos)
-	    (error "The symbol mode-line-misc-info not found in the mode-line-format")
+	    (error "mode-line-misc-info not in mode-line-format -- cannot use mlscroll-shortfun-min-width")
 	  (setq mlscroll-shortfun-saved (cons mode-line-format
 					      which-func-format)
 		mlscroll-shortfun-mlparts (seq-partition mode-line-format

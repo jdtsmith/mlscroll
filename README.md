@@ -58,6 +58,7 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
 
 - **I'm getting errors about mode-line-misc-info:** You probably have `mlscroll-shortfun-min-width` set to non-`nil` with a non-standard mode line format.  Function name shortening relies on dividing the mode line at `mode-line-misc-info` and computing how much space it takes, then altering `which-func-format` (inside of `mode-line-misc-info`) to truncate the function name appropriately. 
 
+- **How can I customize MLScroll?** `M-x customize-group mlscroll [Ret]`. 
 # Other tips
 
 MLScroll takes up a decent (configurable) chunk of your mode line.  To save space for it even when the window is somewhat narrow, I use:

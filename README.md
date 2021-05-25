@@ -47,6 +47,16 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
   (setq mlscroll-shortfun-min-width 11) ;truncate which-func, for default mode-line-format's
   (mlscroll-mode 1))
 ```
+# FAQ's
+
+- **How does it work?** MLScroll places itself in `mode-line-end-spaces`, and uses a right-aligned space to align it at the end of the modeline.
+
+- **MLScroll doesn't work with my fancy mode line mode!** It should work automatically for simple mode lines that end in `mode-line-end-spaces`.  If you have a highly customized or pre-packaged mode line, you'll need to find somewhere to put MLScroll.  A general recipe is to:
+	1. Set `mlscroll-right-align` to `nil`.
+	2. Set the mode line scroller into the relevant mode-line variable directly yourself, like so: `(setq fancy-mode-line-variable-of-some-kind '(:eval (mlscroll-mode-line))`. 
+	3. Alternatively, if you didn't design your mode line yourself, ask whoever did to support MLScroll. 
+
+- **I'm getting errors about mode-line-misc-info:** You probably have `mlscroll-shortfun-min-width` set to non-`nil`.  Function name shortening relies on dividing the mode line at `mode-line-misc-info` and computing how much space it takes, then altering the `which-func-format` to truncate the function name appropriately. 
 
 # Other tips
 

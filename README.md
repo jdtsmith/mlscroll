@@ -56,7 +56,7 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
 	2. Set the mode line scroller into the relevant mode-line variable directly yourself, like so: `(setq fancy-mode-line-variable-of-some-kind '(:eval (mlscroll-mode-line))`. 
 	3. Alternatively, if you didn't design your mode line yourself, ask whoever did to support MLScroll. 
 
-- **I'm getting errors about mode-line-misc-info:** You probably have `mlscroll-shortfun-min-width` set to non-`nil`.  Function name shortening relies on dividing the mode line at `mode-line-misc-info` and computing how much space it takes, then altering the `which-func-format` to truncate the function name appropriately. 
+- **I'm getting errors about mode-line-misc-info:** You probably have `mlscroll-shortfun-min-width` set to non-`nil` with a non-standard mode line format.  Function name shortening relies on dividing the mode line at `mode-line-misc-info` and computing how much space it takes, then altering `which-func-format` (inside of `mode-line-misc-info`) to truncate the function name appropriately. 
 
 # Other tips
 

@@ -147,9 +147,9 @@ window limits and `point-max' of the buffer in that window."
 
 (defun mlscroll-scroll-to (x &optional idx win)
   "Scroll to the position identified by position X and component IDX.
-IDX, if set, is an integer -- 1, 2, or 3 -- identifying which
-component of the scrollbar we are in (1=left, 2=current,
-3=right).  If IDX is non-nil, X is a pixel position within that
+IDX, if set, is an integer -- 0, 1, or 2 -- identifying which
+component of the scrollbar we are in (0=left, 1=current,
+2=right).  If IDX is non-nil, X is a pixel position within that
 component, starting from 0 at left, _including_ border (for idx=1
 only).  If IDX is nil, X can be either a symbol or an integer.
 If it's the symbol 'up or 'down, the window is scrolled up or
@@ -166,9 +166,9 @@ removed)."
 					(- (/ (float cur) 2))
 				      (/ (* (float cur) 3) 2))))
 			   ((null idx) x)
-			   ((= idx 1) (- x mlscroll-border))
-			   ((= idx 2) (+ x left))
-			   ((= idx 3) (+ x left cur))
+			   ((= idx 0) (- x mlscroll-border))
+			   ((= idx 1) (+ x left))
+			   ((= idx 2) (+ x left cur))
 			   (t x)))
 	       (frac (max 0 (min 1 (/ (float xpos) barwidth))))
 	       (targ (- (1+ (round (* frac last)))
@@ -316,7 +316,7 @@ by default if `mlscroll-right-align' is non-nil), in
 				 `(space :width (,(+ right mlscroll-border)))))))
     (add-text-properties 0 (length bar) mlscroll-extra-properties bar)
     (if mlscroll-right-align
-	(concat
+	(list
 	 (propertize " " 'display ; spacer -- align right
 		     `(space :align-to (- (+ right right-margin)
 					  (,(- mlscroll-width mlscroll-border)))))

@@ -86,7 +86,7 @@ Derived from `mlscroll-width-chars'.")
   :group 'mlscroll
   :type 'integer)
 
-(defcustom mlscroll-border (floor (/ (float (default-font-height)) 4))
+(defcustom mlscroll-border nil
   "Border in pixels around the scrollbar.
 Drawn in the mode line's background color.  Defaults to 1/4 of the
 default font's character height."
@@ -330,18 +330,17 @@ by default if `mlscroll-right-align' is non-nil), in
   :global t
   (if mlscroll-mode
       (progn
+	(unless mlscroll-border
+	  (setq mlscroll-border (floor (/ (float (default-font-height)) 4))))
+	(when (and (> mlscroll-border 0)
+		   (or (face-attribute 'mode-line :box)
+		       (face-attribute 'mode-line-inactive :box)))
+	  (message "MLScroll border incompatible with mode-line :box; disabling border")
+	  (setq mlscroll-border 0))
 	(setq mlscroll-saved mode-line-end-spaces
 	      ;; For box to enclose all 3 segments (no internal
 	      ;; borders) , they must have the same :foreground (after
 	      ;; inversion)
-	      mlscroll-flank-face-properties
-	      `(:foreground ,mlscroll-out-color
-		:box (:line-width ,mlscroll-border)
-		:inverse-video t)
-	      mlscroll-cur-face-properties
-	      `(:foreground ,mlscroll-in-color
-	        :box (:line-width ,mlscroll-border)
-		:inverse-video t)
 	      mlscroll-mode-line-font-width
 	      (if (display-multi-font-p)
 		  (aref (font-info (face-font 'mode-line)) 11)
@@ -349,6 +348,20 @@ by default if `mlscroll-right-align' is non-nil), in
 	      mlscroll-width
 	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
+	(if (> mlscroll-border 0)
+	    (setq mlscroll-flank-face-properties
+		  `(:foreground ,mlscroll-out-color
+		    :box (:line-width ,mlscroll-border)
+		    :inverse-video t)
+		  mlscroll-cur-face-properties
+		  `(:foreground ,mlscroll-in-color
+		    :box (:line-width ,mlscroll-border)
+		    :inverse-video t))
+	  (setq mlscroll-flank-face-properties
+		`(:background ,mlscroll-out-color)
+		mlscroll-cur-face-properties
+		`(:background ,mlscroll-in-color)))
+	
 	(if mlscroll-right-align
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(when (and mlscroll-disable-percent-position

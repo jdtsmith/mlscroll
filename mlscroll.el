@@ -329,13 +329,12 @@ by default if `mlscroll-right-align' is non-nil), in
   "Minor mode for displaying scroll indicator in mode line."
   :global t
   (if mlscroll-mode
-      (progn
-	(unless mlscroll-border
+      (let ((mode-line-has-box (or (face-attribute 'mode-line :box)
+				   (face-attribute 'mode-line-inactive :box))))
+	(unless (or mlscroll-border mode-line-has-box)
 	  (setq mlscroll-border (floor (/ (float (default-font-height)) 4))))
-	(when (and (> mlscroll-border 0)
-		   (or (face-attribute 'mode-line :box)
-		       (face-attribute 'mode-line-inactive :box)))
-	  (message "MLScroll border incompatible with mode-line :box; disabling border")
+	(when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
+	  (message "MLScroll border is incompatible with mode-line :box, disabling")
 	  (setq mlscroll-border 0))
 	(setq mlscroll-saved mode-line-end-spaces
 	      ;; For box to enclose all 3 segments (no internal
@@ -348,7 +347,7 @@ by default if `mlscroll-right-align' is non-nil), in
 	      mlscroll-width
 	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
-	(if (> mlscroll-border 0)
+	(if (and mlscroll-border (> mlscroll-border 0))
 	    (setq mlscroll-flank-face-properties
 		  `(:foreground ,mlscroll-out-color
 		    :box (:line-width ,mlscroll-border)
@@ -361,7 +360,6 @@ by default if `mlscroll-right-align' is non-nil), in
 		`(:background ,mlscroll-out-color)
 		mlscroll-cur-face-properties
 		`(:background ,mlscroll-in-color)))
-	
 	(if mlscroll-right-align
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(when (and mlscroll-disable-percent-position

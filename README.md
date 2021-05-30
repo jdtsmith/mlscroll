@@ -60,7 +60,7 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
 
 - **How can I customize MLScroll?** `M-x customize-group mlscroll [Ret]`. 
 
-- **I get small left and right borders that never go away**: MLScroll uses the `:box` attribute to draw _border_.  If your normal mode line face already has a `:box` property, this will cause the left/right border to show up.  Either remove the `:box` property from your mode line face, or set `mlscroll-border` to 0.  See [issue](https://github.com/jdtsmith/mlscroll/issues/3).
+- **I get a message about :box disabling my MLScroll border**: MLScroll uses the `:box` attribute to draw _border_.  If your normal mode line face already has a `:box` property, this will interfere and cause the left/right border to show up.  If you want a border to make your MLScroll smaller, consider disabling the `:box` property on faces `'mode-line` and `'mode-line-inactive` (`M-x customized-group mode-line-faces [Ret]`).  See [issue](https://github.com/jdtsmith/mlscroll/issues/3).
 
 # Other tips
 

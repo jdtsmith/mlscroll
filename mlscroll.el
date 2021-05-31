@@ -45,11 +45,15 @@
   :tag "Mode-line scroll")
 
 (defcustom mlscroll-disable-percent-position t
-  "Whether to disable percentage position in mode line format.
+  "Whether to disable percentage position in mode line format,
+   or replace percentage position with mlscroll bar.
 Only works if `mode-line-percent-position' is at the beginning of
-`mode-line-position'."
+`mode-line-position'.
+Replaces only, if `mlscroll-right-align' is `nil'."
   :group 'mlscroll
-  :type 'boolean)
+  :type '(choice (symbol :tag "remove percentage and" 'replace)
+		 (boolean :tag "remove percentage on/off" t))
+  :options '(t replace nil))
 
 (defcustom mlscroll-right-align t
   "Whether to right-align the scrollbar within the mode line.
@@ -364,15 +368,18 @@ by default if `mlscroll-right-align' is non-nil), in
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(when (and mlscroll-disable-percent-position
 		   (eq (cadar mode-line-position) 'mode-line-percent-position))
-	  (setq mlscroll-saved (cons mlscroll-saved (car mode-line-position))
-		mode-line-position (cdr mode-line-position)))
+        (setq mlscroll-saved (car mode-line-position)
+		mode-line-position (if (eq mlscroll-disable-percent-position 'replace)
+				       (cons '(:eval (mlscroll-mode-line)) (cdr mode-line-position))
+				     (cdr mode-line-position))))
 	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
     (mlscroll-shortfun-unsetup)
     (if mlscroll-right-align
 	(setq mode-line-end-spaces (car mlscroll-saved)))
-    (if (cdr mlscroll-saved)
-	(setq mode-line-position (cons (cdr mlscroll-saved)
-				       mode-line-position)))))
+    (if mlscroll-saved
+	(if (eq mlscroll-disable-percent-position 'replace)
+	    (setcar mode-line-position mlscroll-saved)
+	  (setq mode-line-position (cons mlscroll-saved mode-line-position))))))
 
 (provide 'mlscroll)
 ;;; mlscroll.el ends here

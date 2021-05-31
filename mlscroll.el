@@ -373,7 +373,7 @@ by default if `mlscroll-right-align' is non-nil), in
 	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 	(when (and mlscroll-disable-percent-position
 		   (eq (cadar mode-line-position) 'mode-line-percent-position))
-        (setq mlscroll-saved (car mode-line-position)
+          (setq mlscroll-saved (car mode-line-position)
 		mode-line-position (if (eq mlscroll-disable-percent-position 'replace)
 				       (cons '(:eval (mlscroll-mode-line)) (cdr mode-line-position))
 				     (cdr mode-line-position))))

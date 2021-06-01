@@ -328,7 +328,10 @@ by default if `mlscroll-right-align' is non-nil), in
 	  bar)
       bar)))
 
-(defvar mlscroll-saved nil)
+(defvar mlscroll-saved [nil nil]
+  "Saved parts of mode line: 
+[ (car mode-line-position) mode-line-end-spaces ].")
+
 ;;;###autoload
 (define-minor-mode mlscroll-mode
   "Minor mode for displaying scroll indicator in mode line."
@@ -347,8 +350,7 @@ by default if `mlscroll-right-align' is non-nil), in
 	  (message "MLScroll border is incompatible with mode-line :box, disabling")
 	  (setq mlscroll-border 0))
 	(unless mlscroll-border (setq mlscroll-border 0))
-	(setq mlscroll-saved mode-line-end-spaces
-	      mlscroll-mode-line-font-width
+	(setq mlscroll-mode-line-font-width
 	      (if (display-multi-font-p)
 		  (aref (font-info (face-font 'mode-line)) 11)
 		(default-font-width))
@@ -370,22 +372,31 @@ by default if `mlscroll-right-align' is non-nil), in
 		`(:background ,mlscroll-out-color)
 		mlscroll-cur-face-properties
 		`(:background ,mlscroll-in-color)))
-	(if mlscroll-right-align
-	    (setq mode-line-end-spaces '(:eval (mlscroll-mode-line))))
-	(when (and mlscroll-disable-percent-position
-		   (eq (cadar mode-line-position) 'mode-line-percent-position))
-          (setq mlscroll-saved (car mode-line-position)
-		mode-line-position (if (eq mlscroll-disable-percent-position 'replace)
-				       (cons '(:eval (mlscroll-mode-line)) (cdr mode-line-position))
-				     (cdr mode-line-position))))
+
+	(when mlscroll-right-align
+	  (when (eq mlscroll-alter-percent-position 'replace)
+	    (message "MLScroll: cannot both right-align and replace percent position, disabling replace")
+	    (setq mlscroll-alter-percent-position t))
+	  (setf (aref mlscroll-saved 1) mode-line-end-spaces
+		mode-line-end-spaces '(:eval (mlscroll-mode-line))))
+
+	(if (and mlscroll-alter-percent-position
+		 (eq (cadar mode-line-position) 'mode-line-percent-position))
+            (setf (aref mlscroll-saved 0) (car mode-line-position)
+		  mode-line-position
+		  (if (eq mlscroll-alter-percent-position 'replace) ; put MLScroll there!
+		      (cons '(:eval (mlscroll-mode-line)) (cdr mode-line-position))
+		    (cdr mode-line-position))))
 	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
     (mlscroll-shortfun-unsetup)
-    (if mlscroll-right-align
-	(setq mode-line-end-spaces (car mlscroll-saved)))
-    (if mlscroll-saved
-	(if (eq mlscroll-disable-percent-position 'replace)
-	    (setcar mode-line-position mlscroll-saved)
-	  (setq mode-line-position (cons mlscroll-saved mode-line-position))))))
+    (if (aref mlscroll-saved 1)
+	(setq mode-line-end-spaces (aref mlscroll-saved 1)))
+    (if (aref mlscroll-saved 0)
+	(if (eq mlscroll-alter-percent-position 'replace)
+	    (setcar mode-line-position (aref mlscroll-saved 0))
+	  (setq mode-line-position (cons (aref mlscroll-saved 0)
+					 mode-line-position))))
+    (setq mlscroll-saved [nil nil])))
 
 (provide 'mlscroll)
 ;;; mlscroll.el ends here

@@ -343,9 +343,6 @@ by default if `mlscroll-right-align' is non-nil), in
 	  (setq mlscroll-border 0))
 	(unless mlscroll-border (setq mlscroll-border 0))
 	(setq mlscroll-saved mode-line-end-spaces
-	      ;; For box to enclose all 3 segments (no internal
-	      ;; borders) , they must have the same :foreground (after
-	      ;; inversion)
 	      mlscroll-mode-line-font-width
 	      (if (display-multi-font-p)
 		  (aref (font-info (face-font 'mode-line)) 11)
@@ -354,10 +351,10 @@ by default if `mlscroll-right-align' is non-nil), in
 	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
 	(if (and mlscroll-border (> mlscroll-border 0))
-	    (setq mlscroll-flank-face-properties
-		  `(:foreground ,mlscroll-out-color
-		    :box (:line-width ,mlscroll-border)
-		    :inverse-video t)
+	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments 
+		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must 
+		    :box (:line-width ,mlscroll-border) ; have the same :foreground 
+		    :inverse-video t)			; (after inversion)
 		  mlscroll-cur-face-properties
 		  `(:foreground ,mlscroll-in-color
 		    :box (:line-width ,mlscroll-border)

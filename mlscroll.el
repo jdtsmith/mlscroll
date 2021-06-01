@@ -350,6 +350,8 @@ by default if `mlscroll-right-align' is non-nil), in
 	      mlscroll-width
 	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
 	      line-number-display-limit-width 2000000)
+	(if (= mlscroll-mode-line-font-width 1) ;sometimes mode-line font fails
+	    (setq mlscroll-mode-line-font-width (default-font-width)))
 	(if (and mlscroll-border (> mlscroll-border 0))
 	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments 
 		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must 

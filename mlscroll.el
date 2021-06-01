@@ -198,13 +198,23 @@ EVENT is the mouse scroll event."
      (if (eq type mouse-wheel-up-event) 'up 'down)
      nil win)))
 
+(defun mlscroll-find-index (posn-string)
+  "Find the 0-based index of the posn-string position within the scroll parts."
+  (let ((string (car posn-string))
+	(pos (cdr posn-string)))
+    (if (and (/= pos 0)
+	     (get-text-property (1- pos) 'mlscroll string))
+	(- pos (previous-single-property-change pos 'mlscroll string 0))
+      0)))
+
 (defun mlscroll-mouse (start-event)
   "Handle click and drag mouse events on the mode line scroll bar.
 START-EVENT is the automatically passed mouse event."
   (interactive "e")
   (let* ((start-posn (event-start start-event))
 	 (start-win (posn-window start-posn))
-	 (lcr (cdr-safe (posn-object start-posn)))
+	 (pstring (posn-string start-posn))
+	 (lcr (mlscroll-find-index pstring))
 	 (x (car (posn-object-x-y start-posn)))
 	 (xstart-abs (car (posn-x-y start-posn)))
 	 (mouse-fine-grained-tracking t)
@@ -246,14 +256,15 @@ which to evaluate the line positions."
 (defvar mlscroll-flank-face-properties nil)
 (defvar mlscroll-cur-face-properties nil)
 (defconst mlscroll-extra-properties
-  `(keymap
+  `(local-map
     (keymap (mode-line keymap
 		       (down-mouse-1 . mlscroll-mouse)
 		       (wheel-left . ignore)
 		       (wheel-right . ignore)
 		       (,mouse-wheel-up-event . mlscroll-wheel)
 		       (,mouse-wheel-down-event . mlscroll-wheel)))
-    help-echo "mouse-1: scroll buffer"))
+    help-echo "mouse-1: scroll buffer"
+    mlscroll t))
 
 (defvar mlscroll-shortfun-mlparts nil
   "Separate parts of the mode line for use when function shortening is enabled.")

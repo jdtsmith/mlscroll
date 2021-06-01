@@ -272,13 +272,13 @@ which to evaluate the line positions."
 (defun mlscroll-shortfun-modeline ()
   "Mode line replacement for shortening which-func."
   (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
-	 (cur-length (length first))
+	 (cur-length (string-width first))
 	 (ww (window-width nil t))
 	 (remain
 	  (max mlscroll-shortfun-min-width
 	       (- (/ ww mlscroll-mode-line-font-width)
 		  cur-length
-		  mlscroll-width-chars 2)))) ; 2 = [, ]
+		  mlscroll-width-chars 3)))) ; 2 = [, ] + 1 for padding
     `(,first
       (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with only the
 	       (format-mode-line mode-line-misc-info))); symbol doesn't work

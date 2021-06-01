@@ -329,13 +329,19 @@ by default if `mlscroll-right-align' is non-nil), in
   "Minor mode for displaying scroll indicator in mode line."
   :global t
   (if mlscroll-mode
-      (let ((mode-line-has-box (or (face-attribute 'mode-line :box)
-				   (face-attribute 'mode-line-inactive :box))))
+      (let ((mode-line-has-box
+	     (or (and (face-attribute 'mode-line :box)
+		      (not (eq 'unspecified
+			       (face-attribute 'mode-line :box))))
+		 (and (face-attribute 'mode-line-inactive :box)
+		      (not (eq 'unspecified
+			       (face-attribute 'mode-line-inactive :box)))))))
 	(unless (or mlscroll-border mode-line-has-box)
 	  (setq mlscroll-border (floor (/ (float (default-font-height)) 4))))
 	(when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
 	  (message "MLScroll border is incompatible with mode-line :box, disabling")
 	  (setq mlscroll-border 0))
+	(unless mlscroll-border (setq mlscroll-border 0))
 	(setq mlscroll-saved mode-line-end-spaces
 	      ;; For box to enclose all 3 segments (no internal
 	      ;; borders) , they must have the same :foreground (after

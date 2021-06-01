@@ -44,16 +44,17 @@
   :group 'mode-line
   :tag "Mode-line scroll")
 
-(defcustom mlscroll-disable-percent-position t
-  "Whether to disable percentage position in mode line format,
-   or replace percentage position with mlscroll bar.
-Only works if `mode-line-percent-position' is at the beginning of
-`mode-line-position'.
-Replaces only, if `mlscroll-right-align' is `nil'."
+(defcustom mlscroll-alter-percent-position t
+  "Whether to remove or replace the mode line percentage position.
+Removes if `t', replaces if set to the symbol 'replace (but only
+if `mlscroll-right-align' is `nil'). Only effective if
+`mode-line-percent-position' is at the beginning of
+`mode-line-position'."
   :group 'mlscroll
-  :type '(choice (symbol :tag "remove percentage and" 'replace)
-		 (boolean :tag "remove percentage on/off" t))
-  :options '(t replace nil))
+  :type '(choice
+	  (const :tag "do nothing" nil)
+	  (const :tag "remove" t)
+	  (const :tag "replace" 'replace)))
 
 (defcustom mlscroll-right-align t
   "Whether to right-align the scrollbar within the mode line.

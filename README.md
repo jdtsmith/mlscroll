@@ -48,7 +48,9 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
   (mlscroll-mode 1))
 ```
 
-Note that MLScroll is most visually compatible with "plain" mode line formats that don't use `:box` (it will warn you if you try to use a border with a `:box`-full format enabled).  See the suggestions for configuring [moody](https://github.com/tarsius/moody) for some config ideas to achieve this. 
+Note that MLScroll is most visually compatible with "plain" mode line formats that don't use `:box` bordering.  It will warn you if you try to use a border with a `:box`-full format enabled.  It also doesn't inherit `:underline` and `:overline` mode line properties unless `mlscroll-border` is set to 0 (these don't work with the combination of specified space and `:box`).
+
+See the suggestions for configuring [moody](https://github.com/tarsius/moody) for some config ideas. 
 
 # FAQ's
 

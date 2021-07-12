@@ -12,17 +12,17 @@ and in terminals:
 
 # Why
 
-Emacs has so many great ways to navigate, I really only ever used scrollbars as a visual indication of position and file size.  But recently, to save space, I added `(scroll-bar-mode -1)` to my init.  Immediately I missed having that information at a glance.  A percentage in the mode line (like `25%`) is not very glanceable, and also gives no information about the total line length.  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).
+Emacs has so many great ways to navigate, I really only ever used scrollbars as a visual indication of position and file size.  But recently, to save space, I added `(scroll-bar-mode -1)` to my init.  Immediately I missed having that information at a glance.  A percentage in the mode line (like `25%`) is not very glanceable, and also gives no information about the total line length.  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).  Hence MLScroll.
 
 # Info
 
 - Uses [_specified space_](https://www.gnu.org/software/emacs/manual/html_node/elisp/Specified-Space.html) for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll.
-- Computes line numbers with caching for performance.
+- Conveys the number of _lines_ above/visible/below. Computes line numbers with caching for performance.
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
 - In graphical Emacs, you can click, click + drag, and wheel-scroll a full window height at a time on the mode line scroll bar.
-- Clicking on an inactive window's mode line scroll bar does not activate it. 
+- Clicking on an inactive window's mode line scroll bar does _not_ activate it. 
 - By default, MLScroll disables the `XX%` position mode line indication.
-- MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.
+- By default.  MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.  Can also replace the `XX%` indicator.
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, border size, and other settings.
 - `which-function-mode` by default puts `[full-function-name]` on the right of the mode line.  With long names this can push the scroll bar off the right side of the mode line.  Set `mlscroll-shortfun-min-width` to a minimum width, and MLScroll will truncate the function name to at least that many trailing characters (`[…function-name]` or similar). 
 

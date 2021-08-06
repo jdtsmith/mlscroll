@@ -62,11 +62,10 @@ See the suggestions for configuring [moody](https://github.com/tarsius/moody) fo
 	3. Alternatively, if you didn't design your mode line yourself or find this too complicated, ask whoever did to support MLScroll. 
 
 - **MLScroll starts off very small when I start an emacs session using `--daemon`** For graphical windows, MLScroll needs to know the width of font characters in the mode line (or at least the default font) to draw a pixel-perfect bar. Since `--daemon` doesn't yet create a frame or know anything about the font widths, loading MLScroll there misreports the font width.  The solution is either to abandon `--daemon` in favor of `(server-start)` in your init file, or arrange for mlsroll to be called _later_ after a frame is created, ala:
-
-```elisp
-(use-package mlscroll
-  :hook (server-after-make-frame . mlscroll-mode))
-```
+  ```elisp
+  (use-package mlscroll
+    :hook (server-after-make-frame . mlscroll-mode))
+  ```
 
 - **I'm getting errors about mode-line-misc-info:** You probably have `mlscroll-shortfun-min-width` set to non-`nil` with a non-standard mode line format.  Function name shortening relies on dividing the mode line at `mode-line-misc-info` and computing how much space it takes, then altering `which-func-format` (inside of `mode-line-misc-info`) to truncate the function name appropriately. 
 

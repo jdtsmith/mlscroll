@@ -48,6 +48,14 @@ called at init time (or whenever you are feeling scrolly). Toggle on or off anyt
   (mlscroll-mode 1))
 ```
 
+Alternatively, if you start emacs using the command line `--daemon` command (see below):
+
+```elisp
+(use-package mlscroll
+   :ensure t
+   :hook (server-after-make-frame . mlscroll-mode))
+```
+
 Note that MLScroll is most visually compatible with "plain" mode line formats that don't use `:box` bordering.  It will warn you if you try to use a border with a `:box`-full format enabled.  It also doesn't inherit `:underline` and `:overline` mode line properties unless `mlscroll-border` is set to 0 (these don't work with the combination of specified space and `:box`).
 
 See the suggestions for configuring [moody](https://github.com/tarsius/moody) for some config ideas. 
@@ -61,7 +69,7 @@ See the suggestions for configuring [moody](https://github.com/tarsius/moody) fo
 	2. Set the mode line scroller into the relevant mode-line variable directly yourself, like so: `(setq fancy-mode-line-variable-of-some-kind '(:eval (mlscroll-mode-line))`. 
 	3. Alternatively, if you didn't design your mode line yourself or find this too complicated, ask whoever did to support MLScroll. 
 
-- **MLScroll starts off very small when I start an emacs session using `--daemon`** For graphical windows, MLScroll needs to know the width of font characters in the mode line (or at least the default font) to draw a pixel-perfect bar. Since `--daemon` doesn't yet create a frame or know anything about the font widths, loading MLScroll there misreports the font width.  The solution is either to abandon `--daemon` in favor of `(server-start)` in your init file, or arrange for mlsroll to be called _later_ after a frame is created, ala:
+- **MLScroll starts off very small when I start an emacs session using `--daemon`** For graphical windows, MLScroll needs to know the width of font characters in the mode line (or at least the default font) to draw a pixel-perfect bar. Since `--daemon` doesn't create a frame or know anything about the font widths, loading MLScroll directly under a `--daemon` session misreports the font width as 1 pixel, leading to a very small scroller bar.  The solution is either to abandon `--daemon` in favor of [`(server-start)`](https://www.gnu.org/software/emacs/manual/html_node/emacs/Emacs-Server.html) in your init file, or arrange for MLScroll to be initialized _later_, after a frame is created, ala:
   ```elisp
   (use-package mlscroll
     :hook (server-after-make-frame . mlscroll-mode))

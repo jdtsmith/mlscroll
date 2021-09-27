@@ -19,10 +19,10 @@ Emacs has so many great ways to navigate, I really only ever used scrollbars as 
 - Uses [_specified space_](https://www.gnu.org/software/emacs/manual/html_node/elisp/Specified-Space.html) for drawing (only 3 variable-width spaces, actually) for lightning-fast text-based mode line scroll.
 - Conveys the number of _lines_ above/visible/below. Computes line numbers with caching for performance.
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
-- In graphical Emacs, you can click, click + drag, and wheel-scroll a full window height at a time on the mode line scroll bar.
-- Clicking on an inactive window's mode line scroll bar does _not_ activate it. 
+- In graphical Emacs, you can interact with the mode line scroll bar — click, click + drag, and wheel-scroll a full window height at a time.
+- Clicking on an inactive window's mode line scroll bar does _not_ activate that window. 
 - By default, MLScroll disables the `XX%` position mode line indication.
-- By default.  MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.  Optionally, it can instead replace the `XX%` indicator.
+- By default,  MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.  Optionally, it can instead replace the `XX%` indicator.
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, border size, and other settings.
 - `which-function-mode` by default puts `[full-function-name]` on the right of the mode line.  With long names this can push the scroll bar off the right side of the mode line.  Set `mlscroll-shortfun-min-width` to a minimum width, and MLScroll will truncate the function name to at least that many trailing characters (`[…function-name]` or similar). 
 

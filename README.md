@@ -3,11 +3,11 @@ A lightweight scrollbar for the Emacs mode line.
 
 For graphical window systems:
 
-![mlscroll](https://user-images.githubusercontent.com/93749/116825204-38031880-ab5c-11eb-8252-5f60a61f45dd.gif)
+&nbsp;&nbsp;&nbsp;&nbsp;![mlscroll](https://user-images.githubusercontent.com/93749/116825204-38031880-ab5c-11eb-8252-5f60a61f45dd.gif)
 
 and in terminals:
 
-![mlscroll-terminal](https://user-images.githubusercontent.com/93749/116926527-7239ec00-ac28-11eb-910c-91daaf492284.gif)
+&nbsp;&nbsp;&nbsp;&nbsp;![mlscroll-terminal](https://user-images.githubusercontent.com/93749/116926527-7239ec00-ac28-11eb-910c-91daaf492284.gif)
 
 
 # Why

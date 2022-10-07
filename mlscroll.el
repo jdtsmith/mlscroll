@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.1.1
+;; Version: 0.1.2
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -121,32 +121,30 @@ Returns a list of 3 line numbers at: window start, window end,
 and `point-max'.  Uses caching for speed.  If WIN is passed, use the
 window limits and `point-max' of the buffer in that window."
   (with-current-buffer (window-buffer win)
-    ;(cl-incf (aref mlscroll-cache-stats 0))
     (let* ((mod (car mlscroll-linenum-cache))
 	   (last-bt (car mod)) (last-pmn (nth 1 mod)) (last-pmx (nth 2 mod))
 	   (cache (cdr mlscroll-linenum-cache))
 	   (old-start (car cache))
 	   (old-line-start (nth 1 cache))
 	   (old-line-max (nth 2 cache))
-	   (wstart (window-start win)) (wend (window-end win t))
+	   (wstart (window-start win)) (wend (window-end win))
 	   (pmn (point-min)) (pmx (point-max))
 	   (buf-tick (buffer-modified-tick))
 	   lstart lend lmax)
+      (if (eq wend nil) (setq wend (window-end win t)))
       (if (and (= buf-tick last-bt) (= pmn last-pmn) (= pmx last-pmx))
-	  (setq lstart (if (= wstart old-start) old-line-start
-			 (if (< (abs (- wstart old-start)) (- wstart pmn))
-			     (funcall (if (> wstart old-start) #'+ #'-)
-				      old-line-start
-				      (count-lines wstart old-start))
-			   ;(cl-incf (aref mlscroll-cache-stats 1))
-			   (line-number-at-pos wstart)))
+	  (setq lstart (cond ((= wstart old-start) old-line-start)
+			     ((< (abs (- wstart old-start)) (- wstart pmn -1000))
+			      (funcall (if (> wstart old-start) #'+ #'-)
+				       old-line-start
+				       (count-lines wstart old-start)))
+			     (t (line-number-at-pos wstart)))
 		lend (+ lstart (count-lines wstart wend))
 		lmax old-line-max)
-	;(cl-incf (aref mlscroll-cache-stats 2))
-	(setq mod (list buf-tick pmn pmx))
-	(setq lstart (line-number-at-pos wstart)
-	      lend   (+ lstart (count-lines wstart wend))
-	      lmax   (+ lend   (count-lines wend pmx))))
+	(setq mod (list buf-tick pmn pmx)
+	      lstart (line-number-at-pos wstart)
+	      lend (+ lstart (count-lines wstart wend))
+	      lmax (+ lend   (count-lines wend pmx))))
       (setq mlscroll-linenum-cache (list mod wstart lstart lmax))
       (list lstart lend lmax))))
 

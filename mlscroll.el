@@ -39,15 +39,15 @@
 
 ;;; Code:
 (defgroup mlscroll nil
-  "Mode-line Scrolling"
+  "Mode-line Scrolling."
   :prefix "mlscroll"
   :group 'mode-line
   :tag "Mode-line scroll")
 
 (defcustom mlscroll-alter-percent-position t
   "Whether to remove or replace the mode line percentage position.
-Removes if `t', replaces if set to the symbol 'replace (but only
-if `mlscroll-right-align' is `nil'). Only effective if
+Removes if t, replaces if set to the symbol 'replace (but only
+if `mlscroll-right-align' is nil).  Only effective if
 `mode-line-percent-position' is at the beginning of
 `mode-line-position'."
   :group 'mlscroll
@@ -99,7 +99,7 @@ default font's character height."
   :type 'integer)
 
 (defcustom mlscroll-shortfun-min-width nil
-  "If non-nil, truncate which-function to a minimum of this width.
+  "If non-nil, truncate `which-function' to a minimum of this width.
 If Which-Function mode is enabled, setting this option will
 truncate the current function name from the right, down to the
 specified width.  This allows the scroll bar to appear fully on
@@ -197,7 +197,7 @@ EVENT is the mouse scroll event."
      nil win)))
 
 (defun mlscroll-find-index (posn-string)
-  "Find the 0-based index of the posn-string position within the scroll parts."
+  "Find the 0-based index of the POSN-STRING position within the scroll parts."
   (let ((string (car posn-string))
 	(pos (cdr posn-string)))
     (if (and (/= pos 0)
@@ -338,8 +338,7 @@ by default if `mlscroll-right-align' is non-nil), in
       bar)))
 
 (defvar mlscroll-saved [nil nil]
-  "Saved parts of mode line: 
-[ (car mode-line-position) mode-line-end-spaces ].")
+  "Saved parts of mode line.")
 
 ;;;###autoload
 (define-minor-mode mlscroll-mode
@@ -369,9 +368,9 @@ by default if `mlscroll-right-align' is non-nil), in
 	(if (= mlscroll-mode-line-font-width 1) ;sometimes mode-line font fails
 	    (setq mlscroll-mode-line-font-width (default-font-width)))
 	(if (and mlscroll-border (> mlscroll-border 0))
-	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments 
-		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must 
-		    :box (:line-width ,mlscroll-border) ; have the same :foreground 
+	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments
+		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must
+		    :box (:line-width ,mlscroll-border) ; have the same :foreground
 		    :inverse-video t)			; (after inversion)
 		  mlscroll-cur-face-properties
 		  `(:foreground ,mlscroll-in-color

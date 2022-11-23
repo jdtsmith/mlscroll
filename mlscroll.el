@@ -218,17 +218,18 @@ START-EVENT is the automatically passed mouse event."
 	 (mouse-fine-grained-tracking t)
 	 (xstart (mlscroll-scroll-to x lcr start-win))
 	 event end xnew)
-    (track-mouse
-      (setq track-mouse 'dragging)
-      (while (and (setq event (read-event))
-		  (mouse-movement-p event))
-	(setq end (event-end event)
-	      xnew (+ xstart (- (car (posn-x-y end)) xstart-abs)))
-	(when (and
-	       (eq (posn-area end) 'mode-line)
-	       (>= xnew 0)
-	       (<= xnew (- mlscroll-width mlscroll-border)))
-	  (mlscroll-scroll-to xnew nil start-win))))))
+    (unless (terminal-parameter nil 'xterm-mouse-mode)
+      (track-mouse
+	(setq track-mouse 'dragging)
+	(while (and (setq event (read-event))
+		    (mouse-movement-p event))
+	  (setq end (event-end event)
+		xnew (+ xstart (- (car (posn-x-y end)) xstart-abs)))
+	  (when (and
+		 (eq (posn-area end) 'mode-line)
+		 (>= xnew 0)
+		 (<= xnew (- mlscroll-width mlscroll-border)))
+	    (mlscroll-scroll-to xnew nil start-win)))))))
 
 (defun mlscroll--part-widths (&optional win)
   "Pixel widths of the bars (not including border).

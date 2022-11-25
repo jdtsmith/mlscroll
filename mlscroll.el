@@ -192,6 +192,15 @@ EVENT is the mouse scroll event."
      (if (eq type mouse-wheel-up-event) 'up 'down)
      nil win)))
 
+(defun mlscroll-find-index (posn-string)
+  "Find the 0-based index of the POSN-STRING position within the scroll parts."
+  (let ((string (car posn-string))
+	(pos (cdr posn-string)))
+    (if (and (/= pos 0)
+	     (get-text-property (1- pos) 'mlscroll string))
+	(- pos (previous-single-property-change pos 'mlscroll string 0))
+      0)))
+
 (defun mlscroll-mouse (start-event)
   "Handle click and drag mouse events on the mode line scroll bar.
 START-EVENT is the automatically passed mouse event."
@@ -199,16 +208,22 @@ START-EVENT is the automatically passed mouse event."
   (let* ((start-posn (event-start start-event))
 	 (start-win (posn-window start-posn))
 	 (pstring (posn-string start-posn))
-	 (lcr (cdr (posn-object start-posn))) ;; (mlscroll-find-index pstring)
-	 (x (car (posn-object-x-y start-posn))) ;; No
+	 (lcr (mlscroll-find-index pstring))
+	 (x (car (posn-object-x-y start-posn))) ;; Doesn't function for xterm-mouse-mode
 	 (xstart-abs (car (posn-x-y start-posn)))
-	 (mouse-fine-grained-tracking t)
 	 (xstart (mlscroll-scroll-to x lcr start-win))
 	 event end xnew)
-    (message "OBJECT: %S" (cdr (posn-object start-posn)))
+    ;; (message "GOT[%d]: %S" lcr
+    ;; 	     (pcase-let ((`(,sx . ,sy) (posn-x-y start-posn))
+    ;; 			 (`(,ex . ,ey) (posn-x-y (posn-at-point (posn-point start-posn)))))
+    ;; 	       (list (posn-area start-posn) (posn-x-y start-posn) (posn-point start-posn)
+    ;; 		     sx sy ex ey ;; (- ex sx)
+    ;; 		     ;; (- ey sy)
+    ;; 		     )))
     (unless (terminal-parameter nil 'xterm-mouse-mode)
       (pcase-let ((`(,_ ,scroll-width ,border)
-		   (terminal-parameter nil 'mlscroll-size)))
+		   (terminal-parameter nil 'mlscroll-size))
+		  (mouse-fine-grained-tracking t))
 	(track-mouse
 	  (setq track-mouse 'dragging)
 	  (while (and (setq event (read-event))

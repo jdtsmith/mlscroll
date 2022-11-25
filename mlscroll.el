@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.1.2
+;; Version: 0.1.3
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -79,15 +79,9 @@ Default is 12 characters wide."
   :group 'mlscroll
   :type 'integer)
 
-(defvar mlscroll-width nil
-  "Scroll width in pixels.
-Derived from `mlscroll-width-chars'.")
-(defvar mlscroll-mode-line-font-width nil
-  "Character width in mode line.")
-
-(defcustom mlscroll-minimum-current-width
-  (if (> (default-font-width) 1) 2 1) ;terminal chars = 1 "pixel" wide
-  "Minimum pixel width of the current window region (central) bar."
+(defcustom mlscroll-minimum-current-width 2
+  "Minimum pixel width of the current window region (central) bar.
+In the terminal, where a 'pixel' is one character, defaults to 1."
   :group 'mlscroll
   :type 'integer)
 
@@ -99,7 +93,7 @@ default font's character height."
   :type 'integer)
 
 (defcustom mlscroll-shortfun-min-width nil
-  "If non-nil, truncate `which-function' to a minimum of this width.
+  "If non-nil, truncate `which-function' to a minimum of this width in chars.
 If Which-Function mode is enabled, setting this option will
 truncate the current function name from the right, down to the
 specified width.  This allows the scroll bar to appear fully on
@@ -130,6 +124,7 @@ window limits and `point-max' of the buffer in that window."
 	   (wstart (window-start win)) (wend (window-end win))
 	   (pmn (point-min)) (pmx (point-max))
 	   (buf-tick (buffer-modified-tick))
+	   (line-number-display-limit-width 2000000)
 	   lstart lend lmax)
       (if (eq wend nil) (setq wend (window-end win t)))
       (if (and (= buf-tick last-bt) (= pmn last-pmn) (= pmx last-pmx))
@@ -158,18 +153,19 @@ only).  If IDX is nil, X can be either a symbol or an integer.
 If it's the symbol 'up or 'down, the window is scrolled up or
 down by half its height.  Otherwise, X is interpreted as a pixel
 position within the entire scrollbar (_not_ including borders).
-If WIN is set, it is a window whose buffer to scroll.  Returns
-the absolute x position within the full bar (with border width
-removed)."
+If WIN is set, it is a window whose buffer should be scrolled.
+Returns the absolute x position within the full bar (with border
+width removed)."
   (pcase-let* ((`(,left ,cur ,right ,start ,end ,last)
 		(mlscroll--part-widths win))
+	       (border (caddr (terminal-parameter nil 'mlscroll-size)))
 	       (barwidth (+ left cur right))
 	       (xpos (cond ((symbolp x) ; scroll wheel
 			    (+ left (if (eq x 'down)
 					(- (/ (float cur) 2))
 				      (/ (* (float cur) 3) 2))))
 			   ((null idx) x)
-			   ((= idx 0) (- x mlscroll-border))
+			   ((= idx 0) (- x border))
 			   ((= idx 1) (+ x left))
 			   ((= idx 2) (+ x left cur))
 			   (t x)))
@@ -196,15 +192,6 @@ EVENT is the mouse scroll event."
      (if (eq type mouse-wheel-up-event) 'up 'down)
      nil win)))
 
-(defun mlscroll-find-index (posn-string)
-  "Find the 0-based index of the POSN-STRING position within the scroll parts."
-  (let ((string (car posn-string))
-	(pos (cdr posn-string)))
-    (if (and (/= pos 0)
-	     (get-text-property (1- pos) 'mlscroll string))
-	(- pos (previous-single-property-change pos 'mlscroll string 0))
-      0)))
-
 (defun mlscroll-mouse (start-event)
   "Handle click and drag mouse events on the mode line scroll bar.
 START-EVENT is the automatically passed mouse event."
@@ -212,24 +199,27 @@ START-EVENT is the automatically passed mouse event."
   (let* ((start-posn (event-start start-event))
 	 (start-win (posn-window start-posn))
 	 (pstring (posn-string start-posn))
-	 (lcr (mlscroll-find-index pstring))
-	 (x (car (posn-object-x-y start-posn)))
+	 (lcr (cdr (posn-object start-posn))) ;; (mlscroll-find-index pstring)
+	 (x (car (posn-object-x-y start-posn))) ;; No
 	 (xstart-abs (car (posn-x-y start-posn)))
 	 (mouse-fine-grained-tracking t)
 	 (xstart (mlscroll-scroll-to x lcr start-win))
 	 event end xnew)
+    (message "OBJECT: %S" (cdr (posn-object start-posn)))
     (unless (terminal-parameter nil 'xterm-mouse-mode)
-      (track-mouse
-	(setq track-mouse 'dragging)
-	(while (and (setq event (read-event))
-		    (mouse-movement-p event))
-	  (setq end (event-end event)
-		xnew (+ xstart (- (car (posn-x-y end)) xstart-abs)))
-	  (when (and
-		 (eq (posn-area end) 'mode-line)
-		 (>= xnew 0)
-		 (<= xnew (- mlscroll-width mlscroll-border)))
-	    (mlscroll-scroll-to xnew nil start-win)))))))
+      (pcase-let ((`(,_ ,scroll-width ,border)
+		   (terminal-parameter nil 'mlscroll-size)))
+	(track-mouse
+	  (setq track-mouse 'dragging)
+	  (while (and (setq event (read-event))
+		      (mouse-movement-p event))
+	    (setq end (event-end event)
+		  xnew (+ xstart (- (car (posn-x-y end)) xstart-abs)))
+	    (when (and
+		   (eq (posn-area end) 'mode-line)
+		   (>= xnew 0)
+		   (<= xnew (- scroll-width border)))
+	      (mlscroll-scroll-to xnew nil start-win))))))))
 
 (defun mlscroll--part-widths (&optional win)
   "Pixel widths of the bars (not including border).
@@ -240,8 +230,11 @@ which to evaluate the line positions."
 	 (start (car lines))
 	 (end (nth 1 lines))
 	 (last (nth 2 lines))
-	 (w (- mlscroll-width (* 2 mlscroll-border)))
-	 (cur (max mlscroll-minimum-current-width
+	 (sizes (terminal-parameter nil 'mlscroll-size))
+	 (scroll-width (cadr sizes))
+	 (border (caddr sizes))
+	 (w (- scroll-width (* 2 border)))
+	 (cur (max (if (display-graphic-p) mlscroll-minimum-current-width 1)
 		   (round
 		    (* w (/ (float (- end start -1))
 			    last)))))
@@ -272,10 +265,11 @@ which to evaluate the line positions."
   "Mode line replacement for shortening which-func."
   (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
 	 (cur-length (string-width first))
+	 (char-width (car (terminal-parameter nil 'mlscroll-size)))
 	 (ww (window-width nil t))
 	 (remain
 	  (max mlscroll-shortfun-min-width
-	       (- (/ ww mlscroll-mode-line-font-width)
+	       (- (/ ww char-width)
 		  cur-length
 		  mlscroll-width-chars 3)))) ; 2 = [, ] + 1 for padding
     `(,first
@@ -319,27 +313,41 @@ Intended to be set in an :eval in the mode line, e.g. (as is done
 by default if `mlscroll-right-align' is non-nil), in
 `mode-line-end-spaces'."
   (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths))
+	       (`(,_ ,scroll-width ,scroll-border) (terminal-parameter nil 'mlscroll-size))
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display
-				 `(space :width (,(+ left mlscroll-border))))
+				 `(space :width (,(+ left scroll-border))))
 		     (propertize " " 'face mlscroll-cur-face-properties
 				 'display
 				 `(space :width (,cur)))
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display
-				 `(space :width (,(+ right mlscroll-border)))))))
+				 `(space :width (,(+ right scroll-border)))))))
     (add-text-properties 0 (length bar) mlscroll-extra-properties bar)
     (if mlscroll-right-align
 	(list
 	 (propertize " " 'display ; spacer -- align right
 		     `(space :align-to (- (+ right right-margin)
-					  (,(- mlscroll-width mlscroll-border)))))
+					  (,(- scroll-width scroll-border)))))
 	  bar)
       bar)))
 
 (defvar mlscroll-saved [nil nil]
   "Saved parts of mode line.")
+
+(defun mlscroll--update-size (&optional frame)
+  "Update terminal parameter for terminal of FRAME with scrollbar size info.
+Defaults to the current frame.  A list with 3 sizes is saved:
+  (font-width scrollbar-width and scrollbar-border)"
+  (let ((fw (or (and (display-graphic-p frame) (display-multi-font-p frame)
+		 (let ((mlw (aref (font-info (face-font 'mode-line)) 11)))
+		   (if (> mlw 1) mlw))) ; sometimes mode-line font fails
+		(with-selected-window (frame-first-window frame)
+		  (default-font-width)))))
+    (set-terminal-parameter frame 'mlscroll-size
+			    (list fw (* fw mlscroll-width-chars)
+				  (if (display-graphic-p frame) mlscroll-border 0)))))
 
 ;;;###autoload
 (define-minor-mode mlscroll-mode
@@ -353,21 +361,15 @@ by default if `mlscroll-right-align' is non-nil), in
 		 (and (face-attribute 'mode-line-inactive :box)
 		      (not (eq 'unspecified
 			       (face-attribute 'mode-line-inactive :box)))))))
+	(add-hook 'after-make-frame-functions #'mlscroll--update-size)
 	(unless (or mlscroll-border mode-line-has-box)
 	  (setq mlscroll-border (floor (/ (float (default-font-height)) 4))))
 	(when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
 	  (message "MLScroll border is incompatible with mode-line :box, disabling")
 	  (setq mlscroll-border 0))
 	(unless mlscroll-border (setq mlscroll-border 0))
-	(setq mlscroll-mode-line-font-width
-	      (if (display-multi-font-p)
-		  (aref (font-info (face-font 'mode-line)) 11)
-		(default-font-width))
-	      mlscroll-width
-	      (* mlscroll-mode-line-font-width mlscroll-width-chars)
-	      line-number-display-limit-width 2000000)
-	(if (= mlscroll-mode-line-font-width 1) ;sometimes mode-line font fails
-	    (setq mlscroll-mode-line-font-width (default-font-width)))
+	(mlscroll--update-size)
+
 	(if (and mlscroll-border (> mlscroll-border 0))
 	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments
 		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must
@@ -397,6 +399,8 @@ by default if `mlscroll-right-align' is non-nil), in
 		      (cons '(:eval (mlscroll-mode-line)) (cdr mode-line-position))
 		    (cdr mode-line-position))))
 	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
+    ;; Disabling
+    (remove-hook 'after-make-frame-functions #'mlscroll--update-size)
     (mlscroll-shortfun-unsetup)
     (if (aref mlscroll-saved 1)
 	(setq mode-line-end-spaces (aref mlscroll-saved 1)))

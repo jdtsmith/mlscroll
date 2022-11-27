@@ -369,7 +369,6 @@ Defaults to the current frame.  A list with 3 sizes is saved:
 	  (setq mlscroll-border 0))
 	(unless mlscroll-border (setq mlscroll-border 0))
 	(mlscroll--update-size)
-
 	(if (and mlscroll-border (> mlscroll-border 0))
 	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments
 		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must
@@ -387,7 +386,7 @@ Defaults to the current frame.  A list with 3 sizes is saved:
 	(when mlscroll-right-align
 	  (when (eq mlscroll-alter-percent-position 'replace)
 	    (message "MLScroll: cannot both right-align and replace percent position, disabling replace")
-	    (setq mlscroll-alter-percent-position t))
+	    (setq mlscroll-alter-percent-position t)) ; remove only
 	  (setf (aref mlscroll-saved 1) mode-line-end-spaces
 		mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 

@@ -90,7 +90,8 @@ In the terminal, where a 'pixel' is one character, defaults to 1."
 Drawn in the mode line's background color.  Defaults to 1/4 of the
 default font's character height."
   :group 'mlscroll
-  :type 'integer)
+  :type '(choice  (integer :tag "Number of border pixels")
+		  (const :tag "No border" nil)))
 
 (defcustom mlscroll-shortfun-min-width nil
   "If non-nil, truncate `which-function' to a minimum of this width in chars.

@@ -366,7 +366,7 @@ Defaults to the current frame.  A list with 3 sizes is saved:
 
 ;;;###autoload
 (define-minor-mode mlscroll-mode
-  "Minor mode for displaying scroll indicator in mode line."
+  "Minor mode for displaying an interactive scrollbar in the mode line."
   :global t
   (if mlscroll-mode
       (let ((mode-line-has-box

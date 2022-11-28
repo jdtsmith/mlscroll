@@ -357,8 +357,11 @@ by default if `mlscroll-right-align' is non-nil), in
 Defaults to the current frame.  A list with 3 sizes is saved:
   (font-width scrollbar-width and scrollbar-border)"
   (let ((fw (or (and (display-graphic-p frame) (display-multi-font-p frame)
-		 (let ((mlw (aref (font-info (face-font 'mode-line)) 11)))
-		   (if (> mlw 1) mlw))) ; sometimes mode-line font fails
+		     (if-let ((mlf (face-font 'mode-line)) ; may return nil
+			      (fi (font-info mlf))
+			      (mlw (aref fi 11))
+			      ((> mlw 1))) ; sometimes mode-line font fails
+			 mlw))
 		(with-selected-window (frame-first-window frame)
 		  (default-font-width)))))
     (set-terminal-parameter frame 'mlscroll-size

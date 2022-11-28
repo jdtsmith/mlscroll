@@ -352,21 +352,29 @@ by default if `mlscroll-right-align' is non-nil), in
 (defvar mlscroll-saved [nil nil]
   "Saved parts of mode line.")
 
+(defvar mlscroll--size-set [nil nil])
 (defun mlscroll--update-size (&optional frame)
   "Update terminal parameter for terminal of FRAME with scrollbar size info.
 Defaults to the current frame.  A list with 3 sizes is saved:
-  (font-width scrollbar-width and scrollbar-border)"
-  (let ((fw (or (and (display-graphic-p frame) (display-multi-font-p frame)
-		     (if-let ((mlf (face-font 'mode-line)) ; may return nil
-			      (fi (font-info mlf))
-			      (mlw (aref fi 11))
-			      ((> mlw 1))) ; sometimes mode-line font fails
-			 mlw))
-		(with-selected-window (frame-first-window frame)
-		  (default-font-width)))))
-    (set-terminal-parameter frame 'mlscroll-size
-			    (list fw (* fw mlscroll-width-chars)
-				  (if (display-graphic-p frame) mlscroll-border 0)))))
+
+  (font-width scrollbar-width and scrollbar-border)
+
+Only updates sizes once for a given terminal type (graphical or
+non-graphical)."
+  (let ((dgp (display-graphic-p frame)))
+    (when-let (((not (aref mlscroll--size-set (if dgp 1 0))))
+	       (fw (or (and dgp
+			    (if-let ((mlf (face-font 'mode-line)) ; may return nil
+				     (fi (font-info mlf))
+				     (mlw (aref fi 11))
+				     ((> mlw 1))) ; sometimes mode-line font fails
+				mlw))
+		       (with-selected-window (frame-first-window frame)
+			 (default-font-width)))))
+      (set-terminal-parameter frame 'mlscroll-size
+			      (list fw (* fw mlscroll-width-chars)
+				    (if dgp mlscroll-border 0)))
+      (setf (aref mlscroll--size-set (if dgp 1 0)) t))))
 
 ;;;###autoload
 (define-minor-mode mlscroll-mode

@@ -418,12 +418,15 @@ non-graphical)."
 		mode-line-end-spaces '(:eval (mlscroll-mode-line))))
 
 	(when (and mlscroll-alter-percent-position
-		   (catch 'find-in-tree ; search inside car of mode-line-position
-		     (cl-subst t t (car mode-line-position)
-			       :key (lambda (el)
-				      (when (eq el 'mode-line-percent-position)
-					(throw 'find-in-tree t))))
-		     nil))
+		   (catch 'find-in-tree       ; search inside car of mode-line-position
+		     (cl-labels ((find-tree (tree val)
+				  (if (consp tree)
+				      (progn
+					(find-tree (car tree) val)
+					(if (cdr tree) (find-tree (cdr tree) val)))
+				    (if (eq tree val)
+					(throw 'find-in-tree t)))))
+		       (find-tree (car mode-line-position) 'mode-line-percent-position))))
           (setf (aref mlscroll-saved 0) (car mode-line-position))
 	  (if (eq mlscroll-alter-percent-position 'replace) ; put MLScroll there!
 	      (setcar mode-line-position '(:eval (mlscroll-mode-line)))

@@ -419,13 +419,12 @@ non-graphical)."
 
 	(when (and mlscroll-alter-percent-position
 		   (catch 'find-in-tree       ; search inside car of mode-line-position
-		     (cl-labels ((find-tree (tree val)
-				  (if (consp tree)
-				      (progn
-					(find-tree (car tree) val)
-					(if (cdr tree) (find-tree (cdr tree) val)))
-				    (if (eq tree val)
-					(throw 'find-in-tree t)))))
+		     (cl-labels (( find-tree (tree val)
+				   (if (atom tree)
+				       (if (eq tree val) (throw 'find-in-tree t))
+				     (find-tree (car tree) val) ; depth-first
+				     (if-let ((siblings (cdr tree)))
+					 (find-tree siblings val)))))
 		       (find-tree (car mode-line-position) 'mode-line-percent-position))))
           (setf (aref mlscroll-saved 0) (car mode-line-position))
 	  (if (eq mlscroll-alter-percent-position 'replace) ; put MLScroll there!

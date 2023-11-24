@@ -133,7 +133,8 @@ window limits and `point-max' of the buffer in that window."
 			     ((< (abs (- wstart old-start)) (- wstart pmn -1000))
 			      (funcall (if (> wstart old-start) #'+ #'-)
 				       old-line-start
-				       (count-lines wstart old-start)))
+				       (- (count-lines wstart old-start) ; +1 when not at \n
+					  (if (eq (char-before (max wstart old-start)) ?\n) 0 1))))
 			     (t (line-number-at-pos wstart)))
 		lend (+ lstart (count-lines wstart wend))
 		lmax old-line-max)

@@ -1,6 +1,6 @@
 ;;; mlscroll.el --- A scroll bar for the modeline  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  J.D. Smith
+;; Copyright (C) 2021-2023  J.D. Smith
 
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll

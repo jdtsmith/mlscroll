@@ -46,7 +46,7 @@
 
 (defcustom mlscroll-alter-percent-position t
   "Whether to remove or replace the mode line percentage position.
-Removes if t, replaces if set to the symbol 'replace (but only
+Removes if t, replaces if set to the symbol replace (but only
 if `mlscroll-right-align' is nil).  Only effective if
 `mode-line-percent-position' is at the beginning of
 `mode-line-position'."
@@ -59,7 +59,7 @@ if `mlscroll-right-align' is nil).  Only effective if
 (defcustom mlscroll-right-align t
   "Whether to right-align the scrollbar within the mode line.
 If set to nil, you must arrange to include
-'(eval: (mlscroll-mode-line)) somewhere in `mode-line-format'."
+\(eval: (mlscroll-mode-line)) somewhere in `mode-line-format'."
   :group 'mlscroll
   :type 'boolean)
 
@@ -81,7 +81,7 @@ Default is 12 characters wide."
 
 (defcustom mlscroll-minimum-current-width 2
   "Minimum pixel width of the current window region (central) bar.
-In the terminal, where a 'pixel' is one character, defaults to 1."
+In the terminal, where a \"pixel\" is one character, defaults to 1."
   :group 'mlscroll
   :type 'integer)
 
@@ -152,7 +152,7 @@ component of the scrollbar we are in (0=left, 1=current,
 2=right).  If IDX is non-nil, X is a pixel position within that
 component, starting from 0 at left, _including_ border (for idx=1
 only).  If IDX is nil, X can be either a symbol or an integer.
-If it's the symbol 'up or 'down, the window is scrolled up or
+If it's the symbol up or down, the window is scrolled up or
 down by half its height.  Otherwise, X is interpreted as a pixel
 position within the entire scrollbar (_not_ including borders).
 If WIN is set, it is a window whose buffer should be scrolled.

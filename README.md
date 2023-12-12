@@ -60,6 +60,8 @@ Note that MLScroll is most visually compatible with "plain" mode line formats th
 
 See the suggestions for configuring [moody](https://github.com/tarsius/moody) for some config ideas. 
 
+For users of `modus-themes`, `(setq modus-themes-mode-line '(moody borderless))` is recommended.
+
 # FAQ's
 
 - **How does it work?** MLScroll places itself by default in `mode-line-end-spaces`, and uses a right-aligned space to align it at the end of the modeline.
@@ -79,7 +81,9 @@ See the suggestions for configuring [moody](https://github.com/tarsius/moody) fo
 
 - **How can I customize MLScroll?** `M-x customize-group mlscroll [Ret]`. 
 
-- **I get a message about :box disabling my MLScroll border**: MLScroll uses the `:box` attribute to draw _border_.  If your normal mode line face already has a `:box` property, this will interfere and cause the left/right border to show up.  If you want a border to make your MLScroll smaller, consider disabling the `:box` property on faces `'mode-line` and `'mode-line-inactive` (`M-x customized-group mode-line-faces [Ret]`).  See [issue](https://github.com/jdtsmith/mlscroll/issues/3).
+- **I want to use MLScroll with different themes throughout the day, what should I do?** Arrange to have `(mlscroll-layout t)` called when your theme changes, to update the scroll bar colors, size, etc.  Since the "thumb" color defaults to the foreground color of the `scroll-bar` face, you might configure that face for your theme, rather than `mlscroll-in-color` directly.
+
+- **I get a message about :box disabling my MLScroll border**: MLScroll uses the `:box` attribute to draw _border_.  If your normal mode line face already has a `:box` property, this will interfere and cause the left/right border to show up.  If you want a border to make your MLScroll smaller, consider disabling the `:box` property on faces `'mode-line` and `'mode-line-inactive` (`M-x customized-group mode-line-faces [Ret]`).  See [issue](https://github.com/jdtsmith/mlscroll/issues/3).  For users of `modus-themes`, `(setq modus-themes-mode-line '(moody borderless))` is recommended.
 
 # Other tips
 

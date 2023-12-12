@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.1.7
+;; Version: 0.1.8
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -63,15 +63,19 @@ If set to nil, you must arrange to include
   :group 'mlscroll
   :type 'boolean)
 
-(defcustom mlscroll-in-color (face-attribute 'region :background nil t)
-  "Background color for range inside of current window bounds."
+(defcustom mlscroll-in-color nil
+  "Custom background color for range inside of current window bounds.
+If nil, defaults to scroll-bar foreground color."
   :group 'mlscroll
-  :type 'color)
+  :type '(choice
+	  (const :tag "Default" nil)
+	  color))
 
-(defcustom mlscroll-out-color (face-attribute 'default :background)
-  "Background color for range outside of current window bounds."
+(defcustom mlscroll-out-color nil
+  "Custom background color for range outside of current window bounds.
+If nil, defaults to the default background color."
   :group 'mlscroll
-  :type 'color)
+  :type '(choice (const :tag "Default" nil) color))
 
 (defcustom mlscroll-width-chars 12
   "Width of the mode line scroll indicator in characters.
@@ -354,16 +358,17 @@ by default if `mlscroll-right-align' is non-nil), in
   "Saved parts of mode line.")
 
 (defvar mlscroll--size-set [nil nil])
-(defun mlscroll--update-size (&optional frame)
+(defun mlscroll--update-size (border &optional frame force)
   "Update terminal parameter for terminal of FRAME with scrollbar size info.
-Defaults to the current frame.  A list with 3 sizes is saved:
+Defaults to the current frame.  BORDER is the border size to
+use (see `mlscroll-border').  A list with 3 sizes is saved:
 
   (font-width scrollbar-width and scrollbar-border)
 
 Only updates sizes once for a given terminal type (graphical or
-non-graphical)."
+non-graphical), unless FORCE is non-nil."
   (let ((dgp (display-graphic-p frame)))
-    (when-let (((not (aref mlscroll--size-set (if dgp 1 0))))
+    (when-let (((or force (not (aref mlscroll--size-set (if dgp 1 0)))))
 	       (fw (or (and dgp
 			    (if-let ((mlf (face-font 'mode-line)) ; may return nil
 				     (fi (font-info mlf))
@@ -374,63 +379,79 @@ non-graphical)."
 			 (default-font-width)))))
       (set-terminal-parameter frame 'mlscroll-size
 			      (list fw (* fw mlscroll-width-chars)
-				    (if dgp mlscroll-border 0)))
+				    (if dgp border 0)))
       (setf (aref mlscroll--size-set (if dgp 1 0)) t))))
+
+(defun mlscroll--calculate-faces (border)
+  "Update the faces to use for mlscroll's bar.
+BORDER is the border to use in pixels."
+  (let ((in-col (or mlscroll-in-color
+		    (face-attribute 'scroll-bar :foreground nil t)))
+	(out-col (or mlscroll-out-color
+		     (face-attribute 'default :background))))
+    (if (and border (> border 0))
+	(setq mlscroll-flank-face-properties
+	      ;; For box to enclose all 3 segments (with no internal borders)
+	      ;; they must have the same :foreground (after inversion)
+	      `(:foreground ,out-col :box (:line-width ,border) :inverse-video t)
+	      mlscroll-cur-face-properties
+	      `(:foreground ,in-col :box (:line-width ,border) :inverse-video t))
+      (setq mlscroll-flank-face-properties
+	    `(:background ,out-col)
+	    mlscroll-cur-face-properties
+	    `(:background ,in-col)))))
+
+(defun mlscroll-layout (&optional force)
+  "Layout the mlscroll bar's size and appearance.
+See `mlscroll--update-size' for FORCE."
+  (let ((mode-line-has-box
+	 (or (and (face-attribute 'mode-line :box)
+		  (not (eq 'unspecified
+			   (face-attribute 'mode-line :box))))
+	     (and (face-attribute 'mode-line-inactive :box)
+		  (not (eq 'unspecified
+			   (face-attribute 'mode-line-inactive :box))))))
+	(border (or mlscroll-border 0)))
+    (unless (or mlscroll-border mode-line-has-box)
+      (setq border (floor (/ (float (default-font-height)) 4))))
+    (when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
+      (message "MLScroll border is incompatible with mode-line :box, disabling")
+      (setq border 0))
+    (mlscroll--update-size border nil force)
+    (mlscroll--calculate-faces border)))
+
+(defun mlscroll--install-on-modeline ()
+  "Install the mlscrollbar in the modeline.
+Saves any replaced mode-line elements."
+  (when mlscroll-right-align
+    (when (eq mlscroll-alter-percent-position 'replace)
+      (message "MLScroll: cannot both right-align and replace percent position, disabling replace")
+      (setq mlscroll-alter-percent-position t)) ; remove only
+    (setf (aref mlscroll-saved 1) mode-line-end-spaces
+	  mode-line-end-spaces '(:eval (mlscroll-mode-line))))
+  (when (and mlscroll-alter-percent-position
+	     (catch 'find-in-tree ; search inside car of mode-line-position
+	       (cl-labels ((find-tree (tree val)
+			     (if (atom tree)
+				 (if (eq tree val) (throw 'find-in-tree t))
+			       (find-tree (car tree) val) ; depth-first
+			       (if-let ((siblings (cdr tree)))
+				   (find-tree siblings val)))))
+		 (find-tree (car mode-line-position) 'mode-line-percent-position))))
+    (setf (aref mlscroll-saved 0) (car mode-line-position))
+    (if (eq mlscroll-alter-percent-position 'replace) ; put MLScroll there!
+	(setcar mode-line-position '(:eval (mlscroll-mode-line)))
+      (setq mode-line-position (cdr mode-line-position)))))
 
 ;;;###autoload
 (define-minor-mode mlscroll-mode
   "Minor mode for displaying an interactive scrollbar in the mode line."
   :global t
   (if mlscroll-mode
-      (let ((mode-line-has-box
-	     (or (and (face-attribute 'mode-line :box)
-		      (not (eq 'unspecified
-			       (face-attribute 'mode-line :box))))
-		 (and (face-attribute 'mode-line-inactive :box)
-		      (not (eq 'unspecified
-			       (face-attribute 'mode-line-inactive :box)))))))
+      (progn
 	(add-hook 'after-make-frame-functions #'mlscroll--update-size)
-	(unless (or mlscroll-border mode-line-has-box)
-	  (setq mlscroll-border (floor (/ (float (default-font-height)) 4))))
-	(when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
-	  (message "MLScroll border is incompatible with mode-line :box, disabling")
-	  (setq mlscroll-border 0))
-	(unless mlscroll-border (setq mlscroll-border 0))
-	(mlscroll--update-size)
-	(if (and mlscroll-border (> mlscroll-border 0))
-	    (setq mlscroll-flank-face-properties        ; For box to enclose all 3 segments
-		  `(:foreground ,mlscroll-out-color     ; (no internal borders) , they must
-		    :box (:line-width ,mlscroll-border) ; have the same :foreground
-		    :inverse-video t)			; (after inversion)
-		  mlscroll-cur-face-properties
-		  `(:foreground ,mlscroll-in-color
-		    :box (:line-width ,mlscroll-border)
-		    :inverse-video t))
-	  (setq mlscroll-flank-face-properties
-		`(:background ,mlscroll-out-color)
-		mlscroll-cur-face-properties
-		`(:background ,mlscroll-in-color)))
-
-	(when mlscroll-right-align
-	  (when (eq mlscroll-alter-percent-position 'replace)
-	    (message "MLScroll: cannot both right-align and replace percent position, disabling replace")
-	    (setq mlscroll-alter-percent-position t)) ; remove only
-	  (setf (aref mlscroll-saved 1) mode-line-end-spaces
-		mode-line-end-spaces '(:eval (mlscroll-mode-line))))
-
-	(when (and mlscroll-alter-percent-position
-		   (catch 'find-in-tree       ; search inside car of mode-line-position
-		     (cl-labels (( find-tree (tree val)
-				   (if (atom tree)
-				       (if (eq tree val) (throw 'find-in-tree t))
-				     (find-tree (car tree) val) ; depth-first
-				     (if-let ((siblings (cdr tree)))
-					 (find-tree siblings val)))))
-		       (find-tree (car mode-line-position) 'mode-line-percent-position))))
-          (setf (aref mlscroll-saved 0) (car mode-line-position))
-	  (if (eq mlscroll-alter-percent-position 'replace) ; put MLScroll there!
-	      (setcar mode-line-position '(:eval (mlscroll-mode-line)))
-	    (setq mode-line-position (cdr mode-line-position))))
+	(mlscroll-layout)
+	(mlscroll--install-on-modeline)
 	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
     ;; Disabling
     (remove-hook 'after-make-frame-functions #'mlscroll--update-size)

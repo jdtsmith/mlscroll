@@ -60,7 +60,7 @@ Note that MLScroll is most visually compatible with "plain" mode line formats th
 
 See the suggestions for configuring [moody](https://github.com/tarsius/moody) for some config ideas. 
 
-For users of `modus-themes`, `(setq modus-themes-mode-line '(moody borderless))` is recommended, or, in more recent version (>v4):
+For users of `modus-themes`, `(setq modus-themes-mode-line '(moody borderless))` is recommended, or, in more recent versions (>v4):
 
 ```elisp
 (setq modus-themes-common-palette-overrides

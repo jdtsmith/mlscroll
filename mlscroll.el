@@ -65,7 +65,9 @@ If set to nil, you must arrange to include
 
 (defcustom mlscroll-in-color nil
   "Custom background color for range inside of current window bounds.
-If nil, defaults to scroll-bar foreground color."
+If nil, defaults to scroll-bar foreground color, unless that in
+unspecified, in which case the background of the region face is
+used."
   :group 'mlscroll
   :type '(choice
 	  (const :tag "Default" nil)
@@ -389,6 +391,8 @@ BORDER is the border to use in pixels."
 		    (face-attribute 'scroll-bar :foreground nil t)))
 	(out-col (or mlscroll-out-color
 		     (face-attribute 'default :background))))
+    (when (eq in-col 'unspecified)
+      (setq in-col (face-attribute 'region :background nil t)))
     (if (and border (> border 0))
 	(setq mlscroll-flank-face-properties
 	      ;; For box to enclose all 3 segments (with no internal borders)

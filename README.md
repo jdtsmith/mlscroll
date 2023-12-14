@@ -12,7 +12,7 @@ and in terminals:
 
 # Why
 
-Emacs has so many great ways to navigate, I really only ever used scrollbars as a visual indication of position and file size.  But recently, to save space, I added `(scroll-bar-mode -1)` to my init.  Immediately I missed having that information at a glance.  A percentage in the mode line (like `25%`) is not very glanceable, and also gives no information about the current showing content relative to the total line length (i.e. the _length_ of the bar).  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).  Hence MLScroll.
+Emacs has so many great ways to navigate, I really only ever used scrollbars as a visual indication of position and file size.  But recently, to save space, I added `(scroll-bar-mode -1)` to my init.  Immediately I missed having that information at a glance.  A percentage in the mode line (like `25%`) is not very glanceable, and also gives no information about the currently visible content relative to the total line length (i.e. the _length_ of the bar).  I wanted something very fast and very light weight, plus I'm not so into [rainbow cats](https://github.com/TeMPOraL/nyan-mode).  Hence MLScroll.
 
 # Info
 

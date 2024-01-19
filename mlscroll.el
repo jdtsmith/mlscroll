@@ -295,7 +295,7 @@ which to evaluate the line positions."
 	       (- (/ ww char-width)
 		  cur-length
 		  mlscroll-width-chars 3)))) ; 2 = [, ] + 1 for padding
-    `(,first
+    `(,(car mlscroll-shortfun-mlparts) ;; first inhibits 'display (min-width
       (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with only the
 	       (format-mode-line mode-line-misc-info))); symbol doesn't work
       ,@(cdadr mlscroll-shortfun-mlparts)))) ; all the rest

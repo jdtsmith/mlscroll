@@ -394,12 +394,11 @@ BORDER is the border to use in pixels."
     (when (eq in-col 'unspecified)
       (setq in-col (face-attribute 'region :background nil t)))
     (if (and border (> border 0))
-	(setq mlscroll-flank-face-properties
-	      ;; For box to enclose all 3 segments (with no internal borders)
-	      ;; they must have the same :foreground (after inversion)
-	      `(:foreground ,out-col :box (:line-width ,border) :inverse-video t)
-	      mlscroll-cur-face-properties
-	      `(:foreground ,in-col :box (:line-width ,border) :inverse-video t))
+	(let ((props `(:box (:line-width ,border) :inverse-video t)))
+	  ;; For box to enclose all 3 segments (with no internal borders)
+	  ;; they must have the same :foreground (after inversion)
+	  (setq mlscroll-flank-face-properties `(,@props :foreground ,out-col)
+		mlscroll-cur-face-properties `(,@props :foreground ,in-col)))
       (setq mlscroll-flank-face-properties
 	    `(:background ,out-col)
 	    mlscroll-cur-face-properties

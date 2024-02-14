@@ -20,7 +20,7 @@ Emacs has so many great ways to navigate, I really only ever used scrollbars as 
 - Conveys the number of _lines_ above/visible/below window. Computes line numbers with caching for performance.
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
 - In graphical Emacs, you can interact with the mode line scroll bar — click, click + drag, and wheel-scroll a full window height at a time.
-- Clicking on an inactive window's mode line scroll bar does _not_ activate that window. 
+- Clicking on an inactive window's mode line scroll bar scrolls it, but does _not_ activate that window. 
 - By default, MLScroll disables the `XX%` position mode line indication.
 - By default,  MLScroll puts itself in the mode line variable `mode-line-end-spaces`, prepending a spacer to right align itself.  Optionally, it can instead replace the `XX%` indicator (or be placed anywhere in your mode line).
 - Use `M-x customize-group mlscroll` to change background colors, overall scroll bar width, minimum current "thumb" width, border size, and other settings.

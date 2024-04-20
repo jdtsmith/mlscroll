@@ -130,7 +130,7 @@ window limits and `point-max' of the buffer in that window."
 	   (old-line-max (nth 2 cache))
 	   (wstart (window-start win)) (wend (window-end win))
 	   (pmn (point-min)) (pmx (point-max))
-	   (buf-tick (buffer-modified-tick))
+	   (buf-tick (buffer-chars-modified-tick))
 	   (line-number-display-limit-width 2000000)
 	   lstart lend lmax)
       (if (eq wend nil) (setq wend (window-end win t)))

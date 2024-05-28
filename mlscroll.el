@@ -94,14 +94,23 @@ default font's character height."
 
 (defcustom mlscroll-shortfun-min-width nil
   "If non-nil, truncate `which-function' to a minimum of this width in chars.
-If Which-Function mode is enabled, setting this option will
-truncate the current function name from the right, down to the
-specified width.  This allows the scroll bar to appear fully on
-the mode line in more situations."
+If `which-function-mode' is enabled, setting this option will
+truncate the current function name from the left, but no smaller
+than this width.  This allows the scroll bar to appear in full on
+the mode line in more situations.  See also
+`mlscroll-shortfun-extra-width'."
   :type '(choice (const :tag "Off" nil)
 		 (integer :tag "Minimum Width")))
 
-;(defvar-local mlscroll-cache-stats [0 0 0])
+(defcustom mlscroll-shortfun-extra-width 2
+  "Extra characters of padding need for shortfun width calculation.
+These may include padding and bracket characters inside
+`which-func-format'.  Increasing this number causes the
+`which-function' string to become more truncated, leaving extra
+room for the scrollbar as window width is reduced.  See also
+`mlscroll-shortfun-min-width'."
+  :type 'integer)
+
 (defvar-local mlscroll-linenum-cache '((0 0 0) 0 0 0)
   "A per-buffer cache for line number lookup.
 Format:
@@ -273,54 +282,46 @@ which to evaluate the line positions."
     help-echo "mouse-1: scroll buffer"
     mlscroll t))
 
-(defvar mlscroll-shortfun-mlparts nil
-  "Separate parts of the mode line for use when function shortening is enabled.")
-(defvar mlscroll-shortfun-remain nil)
-(defun mlscroll-shortfun-modeline ()
-  "Mode line replacement for shortening which-func."
-  (let* ((first (format-mode-line (car mlscroll-shortfun-mlparts)))
-	 (cur-length (string-width first))
-	 (char-width (car (terminal-parameter nil 'mlscroll-size)))
-	 (ww (window-width nil t))
-	 (remain
-	  (max mlscroll-shortfun-min-width
-	       (- (/ ww char-width)
-		  cur-length
-		  mlscroll-width-chars 3)))) ; 2 = [, ] + 1 for padding
-    `(,(car mlscroll-shortfun-mlparts) ;; first inhibits 'display (min-width
-      (:eval (let ((mlscroll-shortfun-remain ,remain)) ; let bind with only the
-	       (format-mode-line mode-line-misc-info))); symbol doesn't work
-      ,@(cdadr mlscroll-shortfun-mlparts)))) ; all the rest
-
 (defvar mlscroll-shortfun-saved nil)
 (defvar which-func-current)
 (defvar which-func-format)
 (defun mlscroll-shortfun-unsetup ()
   "Reverse the setup."
   (when mlscroll-shortfun-saved
-    (setq-default mode-line-format (car mlscroll-shortfun-saved))
-    (setq which-func-format (cdr mlscroll-shortfun-saved))))
+    (setq which-func-format mlscroll-shortfun-saved)))
+
+(defvar-local mlscroll--last-which-func-lengths nil)
+(defun mlscroll-which-func-short ()
+  "Return a shortened `which-func' string to make room for the scrollbar.
+It is assumed that, aside from the scrollbar, with screen width
+of all other elements on the modeline is returned correctly by
+`string-width' of the formatted value."
+  (let* ((wfc (eval (cadr which-func-current)))
+	 (lwfc (length wfc))
+	 (cur-length
+	  (cdr
+	   (if (eq lwfc (car mlscroll--last-which-func-lengths))
+	       mlscroll--last-which-func-lengths
+	     (let ((which-func-format mlscroll-shortfun-saved))
+	       (setq mlscroll--last-which-func-lengths
+		     (cons lwfc (string-width
+				 (format-mode-line mode-line-format))))))))
+	 (scroll-width (car (terminal-parameter nil 'mlscroll-size)))
+	 (ww (window-width nil t))
+	 (over (- (+ cur-length mlscroll-width-chars mlscroll-shortfun-extra-width)
+		  3 (/ ww scroll-width))))
+    (if (and wfc (> over 0))
+	(concat "…" (substring wfc (- (max mlscroll-shortfun-min-width
+					   (- lwfc over)))))
+      wfc)))
 
 (defun mlscroll-shortfun-setup ()
   "Setup MLScroll."
-  (if mlscroll-shortfun-min-width
-      (let ((mlmi-pos (seq-position mode-line-format 'mode-line-misc-info)))
-	(if (not mlmi-pos)
-	    (error "mode-line-misc-info not in mode-line-format -- cannot use mlscroll-shortfun-min-width")
-	  (setq mlscroll-shortfun-saved (cons mode-line-format
-					      which-func-format)
-		mlscroll-shortfun-mlparts (seq-partition mode-line-format
-							 mlmi-pos))
-	  (setq-default mode-line-format '(:eval (mlscroll-shortfun-modeline)))
-	  (cl-nsubst "" " " mode-line-misc-info :test #'equal)
-	  (cl-nsubst `(:eval
-		       (let ((wfc ,(cadr which-func-current))) ; sans :eval
-			 (if (and wfc mlscroll-shortfun-remain
-				  (> (length wfc) mlscroll-shortfun-remain))
-			     (concat "…"
-				     (substring wfc (- 1 mlscroll-shortfun-remain)))
-			   wfc)))
-		     'which-func-current which-func-format)))))
+  (when mlscroll-shortfun-min-width
+    (setq mlscroll-shortfun-saved which-func-format)
+    (setq which-func-format
+	  (cl-subst '(:eval (mlscroll-which-func-short))
+		    'which-func-current which-func-format))))
 
 (defun mlscroll-mode-line ()
   "Generate text for mode line scrollbar.

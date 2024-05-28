@@ -1,11 +1,11 @@
 ;;; mlscroll.el --- A scroll bar for the modeline  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021-2023  J.D. Smith
+;; Copyright (C) 2021-2024  J.D. Smith
 
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.1.10
+;; Version: 0.2.0
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -

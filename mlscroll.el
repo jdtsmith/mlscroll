@@ -50,7 +50,6 @@ Removes if t, replaces if set to the symbol replace (but only
 if `mlscroll-right-align' is nil).  Only effective if
 `mode-line-percent-position' is at the beginning of
 `mode-line-position'."
-  :group 'mlscroll
   :type '(choice
 	  (const :tag "do nothing" nil)
 	  (const :tag "remove" t)
@@ -60,7 +59,6 @@ if `mlscroll-right-align' is nil).  Only effective if
   "Whether to right-align the scrollbar within the mode line.
 If set to nil, you must arrange to include
 \(eval: (mlscroll-mode-line)) somewhere in `mode-line-format'."
-  :group 'mlscroll
   :type 'boolean)
 
 (defcustom mlscroll-in-color nil
@@ -68,7 +66,6 @@ If set to nil, you must arrange to include
 If nil, defaults to scroll-bar foreground color, unless that in
 unspecified, in which case the background of the region face is
 used."
-  :group 'mlscroll
   :type '(choice
 	  (const :tag "Default" nil)
 	  color))
@@ -76,26 +73,22 @@ used."
 (defcustom mlscroll-out-color nil
   "Custom background color for range outside of current window bounds.
 If nil, defaults to the default background color."
-  :group 'mlscroll
   :type '(choice (const :tag "Default" nil) color))
 
 (defcustom mlscroll-width-chars 12
   "Width of the mode line scroll indicator in characters.
 Default is 12 characters wide."
-  :group 'mlscroll
   :type 'integer)
 
 (defcustom mlscroll-minimum-current-width 2
   "Minimum pixel width of the current window region (central) bar.
 In the terminal, where a \"pixel\" is one character, defaults to 1."
-  :group 'mlscroll
   :type 'integer)
 
 (defcustom mlscroll-border nil
   "Border in pixels around the scrollbar.
 Drawn in the mode line's background color.  Defaults to 1/4 of the
 default font's character height."
-  :group 'mlscroll
   :type '(choice  (integer :tag "Number of border pixels")
 		  (const :tag "No border" nil)))
 
@@ -105,7 +98,6 @@ If Which-Function mode is enabled, setting this option will
 truncate the current function name from the right, down to the
 specified width.  This allows the scroll bar to appear fully on
 the mode line in more situations."
-  :group 'mlscroll
   :type '(choice (const :tag "Off" nil)
 		 (integer :tag "Minimum Width")))
 

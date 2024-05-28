@@ -447,6 +447,8 @@ Saves any replaced mode-line elements."
       (progn
 	(add-hook 'after-make-frame-functions #'mlscroll--update-size)
 	(mlscroll-layout)
+	(if (boundp 'enable-theme-functions)
+	    (add-hook 'enable-theme-functions #'mlscroll-layout))
 	(mlscroll--install-on-modeline)
 	(if mlscroll-shortfun-min-width (mlscroll-shortfun-setup)))
     ;; Disabling

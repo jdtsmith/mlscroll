@@ -293,9 +293,10 @@ which to evaluate the line positions."
 (defvar-local mlscroll--last-which-func-lengths nil)
 (defun mlscroll-which-func-short ()
   "Return a shortened `which-func' string to make room for the scrollbar.
-It is assumed that, aside from the scrollbar, with screen width
-of all other elements on the modeline is returned correctly by
-`string-width' of the formatted value."
+It is assumed that, aside from the scrollbar, the screen width of
+all the other elements on the modeline is correctly estimated as
+the `string-width' of the formatted value.  See
+`mlscroll-shortfun-extra-width' to adjust the calculation."
   (let* ((wfc (eval (cadr which-func-current)))
 	 (lwfc (length wfc))
 	 (cur-length

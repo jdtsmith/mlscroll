@@ -310,9 +310,10 @@ the `string-width' of the formatted value.  See
 	 (scroll-width (car (terminal-parameter nil 'mlscroll-size)))
 	 (ww (window-width nil t))
 	 (over (- (+ cur-length mlscroll-width-chars mlscroll-shortfun-extra-width)
-		  3 (/ ww scroll-width))))
+		  3 ;; mlscroll's specified spaces add only 3 spaces
+		  (/ ww scroll-width))))
     (if (and wfc (> over 0))
-	(concat "…" (substring wfc (- (max mlscroll-shortfun-min-width
+	(concat "…" (substring wfc (- (max (min lwfc mlscroll-shortfun-min-width)
 					   (- lwfc over)))))
       wfc)))
 

@@ -152,6 +152,30 @@ window limits and `point-max' of the buffer in that window."
       (setq mlscroll-linenum-cache (list mod wstart lstart lmax))
       (list lstart lend lmax))))
 
+(defun mlscroll--part-widths-linenos (&optional win)
+  "Pixel widths of the bars (not including border).
+Also returns line numbers at window start & end and (point-max).
+If optional argument WIN is passed, it should be a window in
+which to evaluate the line positions."
+  (let* ((lines (mlscroll-line-numbers win))
+	 (start (car lines))
+	 (end (nth 1 lines))
+	 (last (nth 2 lines))
+	 (sizes (terminal-parameter nil 'mlscroll-size))
+	 (scroll-width (cadr sizes))
+	 (border (caddr sizes))
+	 (w (- scroll-width (* 2 border)))
+	 (cur (max (if (display-graphic-p) mlscroll-minimum-current-width 1)
+		   (round
+		    (* w (/ (float (- end start -1))
+			    last)))))
+	 (left (if (and (= start 1) (= last end)) 0
+		 (max 0 (round (* (- w cur)
+				  (/ (- start 1.0)
+				     (+ (- start 1) (- last end))))))))
+	 (right (max 0 (- w cur left))))
+    (list left cur right start end last)))
+
 (defun mlscroll-scroll-to (x &optional idx win)
   "Scroll to the position identified by position X and component IDX.
 IDX, if set, is an integer -- 0, 1, or 2 -- identifying which
@@ -159,14 +183,14 @@ component of the scrollbar we are in (0=left, 1=current,
 2=right).  If IDX is non-nil, X is a pixel position within that
 component, starting from 0 at left, _including_ border (for idx=1
 only).  If IDX is nil, X can be either a symbol or an integer.
-If it's the symbol up or down, the window is scrolled up or
+If it's the symbol `up' or `down', the window is scrolled up or
 down by half its height.  Otherwise, X is interpreted as a pixel
 position within the entire scrollbar (_not_ including borders).
 If WIN is set, it is a window whose buffer should be scrolled.
 Returns the absolute x position within the full bar (with border
 width removed)."
-  (pcase-let* ((`(,left ,cur ,right ,start ,end ,last)
-		(mlscroll--part-widths win))
+  (pcase-let* ((`(,left ,cur ,right ,start-line _ ,last-line)
+		(mlscroll--part-widths-linenos win))
 	       (border (caddr (terminal-parameter nil 'mlscroll-size)))
 	       (barwidth (+ left cur right))
 	       (xpos (cond ((symbolp x) ; scroll wheel
@@ -178,17 +202,15 @@ width removed)."
 			   ((= idx 1) (+ x left))
 			   ((= idx 2) (+ x left cur))
 			   (t x)))
+	       ;; offset to place bar center at click position
 	       (frac (max 0 (min 1 (/ (float xpos) barwidth))))
-	       (targ (- (1+ (round (* frac last)))
-			(/ (- end start -1) 2))))
-    (when (/= targ start)
-      (set-window-start
-       win
-       (with-current-buffer (window-buffer win)
-	 (save-excursion
-	   (goto-char (cadr mlscroll-linenum-cache))
-	   (forward-line (- targ start))
-	   (point)))))
+	       (target-line (1+ (round (* frac last-line)))))
+    (when (/= target-line start-line)
+      (with-current-buffer (window-buffer win)
+	(set-window-start win (progn
+				(goto-char (cadr mlscroll-linenum-cache))
+				(forward-line (- target-line start-line))
+				(point)))))
     xpos))
 
 (defun mlscroll-wheel (event)
@@ -244,30 +266,6 @@ START-EVENT is the automatically passed mouse event."
 		   (>= xnew 0)
 		   (<= xnew (- scroll-width border)))
 	      (mlscroll-scroll-to xnew nil start-win))))))))
-
-(defun mlscroll--part-widths (&optional win)
-  "Pixel widths of the bars (not including border).
-Also returns line numbers at window start & end and (point-max).
-If optional argument WIN is passed, it should be a window in
-which to evaluate the line positions."
-  (let* ((lines (mlscroll-line-numbers win))
-	 (start (car lines))
-	 (end (nth 1 lines))
-	 (last (nth 2 lines))
-	 (sizes (terminal-parameter nil 'mlscroll-size))
-	 (scroll-width (cadr sizes))
-	 (border (caddr sizes))
-	 (w (- scroll-width (* 2 border)))
-	 (cur (max (if (display-graphic-p) mlscroll-minimum-current-width 1)
-		   (round
-		    (* w (/ (float (- end start -1))
-			    last)))))
-	 (left (if (and (= start 1) (= last end)) 0
-		 (max 0 (round (* (- w cur)
-				  (/ (- start 1.0)
-				     (+ (- start 1) (- last end))))))))
-	 (right (max 0 (- w cur left))))
-    (list left cur right start end last)))
 
 (defvar mlscroll-flank-face-properties nil)
 (defvar mlscroll-cur-face-properties nil)
@@ -330,7 +328,7 @@ the `string-width' of the formatted value.  See
 Intended to be set in an :eval in the mode line, e.g. (as is done
 by default if `mlscroll-right-align' is non-nil), in
 `mode-line-end-spaces'."
-  (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths))
+  (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths-linenos))
 	       (`(,_ ,scroll-width ,scroll-border) (terminal-parameter nil 'mlscroll-size))
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties

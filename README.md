@@ -10,7 +10,8 @@ For graphical window systems:
 
 and terminals too:
 
-&nbsp;&nbsp;&nbsp;&nbsp;![mlscroll-terminal](https://user-images.githubusercontent.com/93749/116926527-7239ec00-ac28-11eb-910c-91daaf492284.gif)
+&nbsp;&nbsp;&nbsp;&nbsp;![mlscroll_terminal](https://github.com/user-attachments/assets/1b553973-bae0-465e-98c2-364d58457a69)
+
 
 ## Why?
 

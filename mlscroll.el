@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -
@@ -244,13 +244,6 @@ START-EVENT is the automatically passed mouse event."
 	 (xstart-abs (car (posn-x-y start-posn)))
 	 (xstart (mlscroll-scroll-to x lcr start-win))
 	 event end xnew)
-    ;; (message "GOT[%d]: %S" lcr
-    ;; 	     (pcase-let ((`(,sx . ,sy) (posn-x-y start-posn))
-    ;; 			 (`(,ex . ,ey) (posn-x-y (posn-at-point (posn-point start-posn)))))
-    ;; 	       (list (posn-area start-posn) (posn-x-y start-posn) (posn-point start-posn)
-    ;; 		     sx sy ex ey ;; (- ex sx)
-    ;; 		     ;; (- ey sy)
-    ;; 		     )))
     (unless (terminal-parameter nil 'xterm-mouse-mode)
       (pcase-let ((`(,_ ,scroll-width ,border)
 		   (terminal-parameter nil 'mlscroll-size))

@@ -22,7 +22,7 @@ Emacs has so many great ways to navigate, I really only ever used scroll-bars as
 - The bar lengths convey the number of _lines_ above/visible/below window. Computes line numbers with caching for performance.
 - Works in terminals! Terminal graphics are more granular (the minimum "pixel" is a character wide).  You might want to increase `mlscroll-width-chars` there. 
 - In graphical Emacs, you can interact with the mode line scroll bar — click, click + drag, and wheel-scroll a full window height at a time.
-- Clicking on an inactive window's mode line scroll bar scrolls it, but does _not_ activate that window. 
+- Another useful feature: clicking on an inactive window's mode line scroll bar scrolls it, but does _not_ activate that window. 
 
 ## Installing
 

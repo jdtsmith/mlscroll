@@ -152,6 +152,15 @@ window limits and `point-max' of the buffer in that window."
       (setq mlscroll-linenum-cache (list mod wstart lstart lmax))
       (list lstart lend lmax))))
 
+(defun mlscroll--terminal-parameter-mlscroll-size ()
+  "Return the `mlscroll-size' terminal parameter.
+
+Replace the third element with the border size if it is a frame."
+  (let ((sizes (terminal-parameter nil 'mlscroll-size)))
+    (if (framep (caddr sizes))
+        (list (car sizes) (cadr sizes) (frame-parameter (caddr sizes) 'border-width))
+      sizes)))
+
 (defun mlscroll--part-widths-linenos (&optional win)
   "Pixel widths of the bars (not including border).
 Also returns line numbers at window start & end and (point-max).
@@ -161,7 +170,7 @@ which to evaluate the line positions."
 	 (start (car lines))
 	 (end (nth 1 lines))
 	 (last (nth 2 lines))
-	 (sizes (terminal-parameter nil 'mlscroll-size))
+	 (sizes (mlscroll--terminal-parameter-mlscroll-size))
 	 (scroll-width (cadr sizes))
 	 (border (caddr sizes))
 	 (w (- scroll-width (* 2 border)))
@@ -191,7 +200,7 @@ Returns the absolute x position within the full bar (with border
 width removed)."
   (pcase-let* ((`(,left ,cur ,right ,start-line _ ,last-line)
 		(mlscroll--part-widths-linenos win))
-	       (border (caddr (terminal-parameter nil 'mlscroll-size)))
+	       (border (caddr (mlscroll--terminal-parameter-mlscroll-size)))
 	       (barwidth (+ left cur right))
 	       (xpos (cond ((symbolp x) ; scroll wheel
 			    (+ left (if (eq x 'down)
@@ -246,7 +255,7 @@ START-EVENT is the automatically passed mouse event."
 	 event end xnew)
     (unless (terminal-parameter nil 'xterm-mouse-mode)
       (pcase-let ((`(,_ ,scroll-width ,border)
-		   (terminal-parameter nil 'mlscroll-size))
+		   (mlscroll--terminal-parameter-mlscroll-size))
 		  (mouse-fine-grained-tracking t))
 	(track-mouse
 	  (setq track-mouse 'dragging)
@@ -298,7 +307,7 @@ the `string-width' of the formatted value.  See
 	       (setq mlscroll--last-which-func-lengths
 		     (cons lwfc (string-width
 				 (format-mode-line mode-line-format))))))))
-	 (scroll-width (car (terminal-parameter nil 'mlscroll-size)))
+	 (scroll-width (car (mlscroll--terminal-parameter-mlscroll-size)))
 	 (ww (window-width nil t))
 	 (over (- (+ cur-length mlscroll-width-chars mlscroll-shortfun-extra-width)
 		  3 ;; mlscroll's specified spaces add only 3 spaces
@@ -322,7 +331,7 @@ Intended to be set in an :eval in the mode line, e.g. (as is done
 by default if `mlscroll-right-align' is non-nil), in
 `mode-line-end-spaces'."
   (pcase-let* ((`(,left ,cur ,right) (mlscroll--part-widths-linenos))
-	       (`(,_ ,scroll-width ,scroll-border) (terminal-parameter nil 'mlscroll-size))
+	       (`(,_ ,scroll-width ,scroll-border) (mlscroll--terminal-parameter-mlscroll-size))
 	       (bar (concat
 		     (propertize " " 'face mlscroll-flank-face-properties
 				 'display

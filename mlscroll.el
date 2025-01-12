@@ -394,6 +394,7 @@ BORDER is the border to use in pixels."
 (defun mlscroll-layout (&optional force)
   "Layout the mlscroll bar's size and appearance.
 See `mlscroll--update-size' for FORCE."
+  (interactive "P")
   (let ((mode-line-has-box
 	 (or (and (face-attribute 'mode-line :box)
 		  (not (eq 'unspecified

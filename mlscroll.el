@@ -346,16 +346,17 @@ by default if `mlscroll-right-align' is non-nil), in
   "Saved parts of mode line.")
 
 (defvar mlscroll--size-set [nil nil])
-(defun mlscroll--update-size (border &optional frame force)
+(defun mlscroll--update-size (&optional frame border force)
   "Update terminal parameter for terminal of FRAME with scrollbar size info.
 Defaults to the current frame.  BORDER is the border size to
-use (see `mlscroll-border').  A list with 3 sizes is saved:
+use (default `mlscroll-border').  A list with 3 sizes is saved:
 
   (font-width scrollbar-width and scrollbar-border)
 
 Only updates sizes once for a given terminal type (graphical or
 non-graphical), unless FORCE is non-nil."
-  (let ((dgp (display-graphic-p frame)))
+  (let ((dgp (display-graphic-p frame))
+	(border (or border mlscroll-border)))
     (when-let (((or force (not (aref mlscroll--size-set (if dgp 1 0)))))
 	       (fw (or (and dgp
 			    (if-let ((mlf (face-font 'mode-line)) ; may return nil
@@ -406,7 +407,7 @@ See `mlscroll--update-size' for FORCE."
     (when (and mlscroll-border (> mlscroll-border 0) mode-line-has-box)
       (message "MLScroll border is incompatible with mode-line :box, disabling")
       (setq border 0))
-    (mlscroll--update-size border nil force)
+    (mlscroll--update-size nil border force)
     (mlscroll--calculate-faces border)))
 
 (defun mlscroll--install-on-modeline ()

@@ -5,7 +5,7 @@
 ;; Author: J.D. Smith
 ;; Homepage: https://github.com/jdtsmith/mlscroll
 ;; Package-Requires: ((emacs "27.1"))
-;; Version: 0.2.2
+;; Version: 0.2.3
 ;; Keywords: convenience
 ;; Prefix: mlscroll
 ;; Separator: -

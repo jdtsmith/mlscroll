@@ -2,7 +2,7 @@
 
 # MLScroll - Modeline Scrollbar for Emacs
 <img alt="MELPA" src="https://melpa.org/packages/mlscroll-badge.svg"/>
-A lightweight scrollbar for the Emacs mode line. 
+A lightweight and functional scrollbar for the Emacs mode line. 
 
 For graphical window systems:
 

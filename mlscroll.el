@@ -341,10 +341,10 @@ by default if `mlscroll-right-align' is non-nil), in
 	  bar)
       bar)))
 
-(defvar mlscroll-saved [nil nil]
+(defvar mlscroll-saved (make-vector 2 nil)
   "Saved parts of mode line.")
 
-(defvar mlscroll--size-set [nil nil])
+(defvar mlscroll--size-set (make-vector 2 nil))
 (defun mlscroll--update-size (&optional frame border force)
   "Update terminal parameter for terminal of FRAME with scrollbar size info.
 Defaults to the current frame.  BORDER is the border size to
@@ -459,7 +459,7 @@ Saves any replaced mode-line elements."
 	    (setcar mode-line-position (aref mlscroll-saved 0))
 	  (setq mode-line-position (cons (aref mlscroll-saved 0)
 					 mode-line-position))))
-    (setq mlscroll-saved [nil nil])))
+    (setq mlscroll-saved (make-vector 2 nil))))
 
 (provide 'mlscroll)
 ;;; mlscroll.el ends here
